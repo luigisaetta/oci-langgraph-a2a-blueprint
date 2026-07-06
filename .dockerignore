@@ -1,0 +1,14 @@
+.git
+.pytest_cache
+.coverage
+.mypy_cache
+.ruff_cache
+.pylint.d
+__pycache__
+*.py[cod]
+*.egg-info
+.venv
+venv
+env
+node_modules
+.DS_Store

@@ -20,3 +20,5 @@
 * Moved the local sample A2A server entry point out of the reusable server factory module.
 * Introduced an explicit sample agent definition plug point for agent factory and Agent Card replacement.
 * Moved shared A2A protocol constants and the default local server URL out of the sample agent adapter.
+* Added a single-container Docker Compose deployment with root start and stop scripts.
+* Added an explicit sleep duration option to the Docker Compose start script.

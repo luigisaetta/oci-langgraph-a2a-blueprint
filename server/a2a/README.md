@@ -296,6 +296,53 @@ AGENT_STEP_SLEEP_SECONDS=0 \
 a2a-langgraph-server
 ```
 
+## Docker Compose
+
+As an alternative to running the server in the Conda environment, start the
+single-container Docker Compose deployment from the repository root:
+
+```bash
+./start_server.sh
+```
+
+The Compose service builds the local image, runs `a2a-langgraph-server`, and
+publishes the server at `http://localhost:8080`.
+
+Set the sample agent step duration directly from the start script:
+
+```bash
+./start_server.sh --sleep-seconds 1.5
+```
+
+Stop and remove the service with:
+
+```bash
+./stop_server.sh
+```
+
+The Compose deployment supports these overrides:
+
+```text
+A2A_SERVER_PORT              Host port published to the container. Defaults to 8080.
+A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card. Defaults to http://localhost:8080.
+AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
+AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 0.
+```
+
+Example with a custom host port:
+
+```bash
+A2A_SERVER_PORT=8123 \
+A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
+./start_server.sh
+```
+
+Then call:
+
+```bash
+a2a-stream-client "hello from Docker Compose" --server-url http://localhost:8123
+```
+
 ## Read the Agent Card
 
 ```bash

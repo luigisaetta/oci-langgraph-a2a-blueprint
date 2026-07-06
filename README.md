@@ -15,6 +15,7 @@ The blueprint currently connects the key pieces:
 - an A2A-compatible HTTP/SSE API layer with Agent Card metadata, task handling, and streaming responses;
 - A2A server runtime configuration that is centralized and easy to audit;
 - local Python clients for direct agent execution and A2A streaming execution;
+- a single-container Docker Compose deployment for local server validation;
 - tests and specifications that make the behavior understandable, repeatable, and safe to evolve.
 
 ## Features
@@ -32,6 +33,7 @@ The blueprint currently connects the key pieces:
 - Server-Sent Events for task status updates, artifact updates, and completion.
 - Injectable streaming agent factory for reusing the A2A server with another LangGraph agent.
 - Centralized A2A server runtime configuration for host, port, public URL, and log level.
+- Docker Compose deployment that runs the sample LangGraph agent and A2A server in one container.
 - Python A2A streaming CLI client for testing the public protocol boundary.
 - Unit tests for the bare agent, direct client, A2A server, A2A server configuration, and A2A streaming client.
 
@@ -88,6 +90,34 @@ For direct in-process agent execution without A2A:
 
 ```bash
 direct-agent-cli "hello" --sleep-seconds 0
+```
+
+## Docker Compose
+
+Run the same A2A server in a single local container:
+
+```bash
+./start_server.sh
+```
+
+The composed server listens on `http://localhost:8080` by default. Stop it with:
+
+```bash
+./stop_server.sh
+```
+
+Set the simulated step duration with:
+
+```bash
+./start_server.sh --sleep-seconds 1.5
+```
+
+You can override the host port and advertised Agent Card URL:
+
+```bash
+A2A_SERVER_PORT=8123 \
+A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
+./start_server.sh
 ```
 
 ## Documentation

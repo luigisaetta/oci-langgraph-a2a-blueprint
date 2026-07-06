@@ -7,6 +7,18 @@ name = "oci-langgraph-a2a-blueprint"
 version = "0.1.0"
 description = "Blueprint for deploying a LangGraph agent on OCI as an A2A-compatible server."
 requires-python = ">=3.11"
+dependencies = [
+    "a2a-sdk[http-server]",
+    "httpx",
+    "httpx-sse",
+    "langchain-core",
+    "langgraph",
+    "pydantic",
+    "python-dotenv",
+    "starlette",
+    "typing-extensions",
+    "uvicorn",
+]
 
 [project.scripts]
 a2a-langgraph-server = "oci_langgraph_a2a_blueprint.a2a_server:main"
