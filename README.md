@@ -56,4 +56,10 @@ curl -N \
   http://localhost:8000/message:stream
 ```
 
+You can also use the Python A2A streaming client:
+
+```bash
+a2a-stream-client "hello"
+```
+
 The project follows a strict spec-driven development workflow. Every meaningful feature starts with a specification in `specs/`, and implementation must stay aligned with the approved behavior. This keeps the repository useful as both working code and a reference architecture for building interoperable agent services on OCI.
