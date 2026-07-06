@@ -15,13 +15,13 @@ from oci_langgraph_a2a_blueprint.parse_utils import parse_float, parse_int
 
 def test_parse_int_uses_default_for_missing_value() -> None:
     """Verify missing integer values resolve to the provided default."""
-    assert parse_int(None, default=8000, variable_name="PORT") == 8000
+    assert parse_int(None, default=8080, variable_name="PORT") == 8080
 
 
 def test_parse_int_rejects_invalid_value() -> None:
     """Verify invalid integer values fail with a clear error."""
     with pytest.raises(ValueError, match="PORT must be an integer"):
-        parse_int("abc", default=8000, variable_name="PORT")
+        parse_int("abc", default=8080, variable_name="PORT")
 
 
 def test_parse_float_uses_default_for_missing_value() -> None:

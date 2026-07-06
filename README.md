@@ -81,7 +81,7 @@ curl -N \
   -H "Content-Type: application/a2a+json" \
   -H "A2A-Version: 1.0" \
   -d '{"message":{"messageId":"message-1","role":"ROLE_USER","parts":[{"text":"hello"}]},"configuration":{"acceptedOutputModes":["text/plain"]}}' \
-  http://localhost:8000/message:stream
+  http://localhost:8080/message:stream
 ```
 
 For direct in-process agent execution without A2A:

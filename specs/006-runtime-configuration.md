@@ -36,7 +36,7 @@ The local server configuration supports:
 
 ```text
 A2A_SERVER_HOST              Bind host. Defaults to 0.0.0.0.
-A2A_SERVER_PORT              Bind port. Defaults to 8000.
+A2A_SERVER_PORT              Bind port. Defaults to 8080.
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```

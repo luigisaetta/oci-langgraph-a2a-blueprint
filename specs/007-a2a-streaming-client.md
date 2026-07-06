@@ -51,7 +51,7 @@ python -m oci_langgraph_a2a_blueprint.clients.a2a_stream_client "hello"
 Supported options:
 
 ```text
---server-url URL      A2A server base URL. Defaults to http://localhost:8000.
+--server-url URL      A2A server base URL. Defaults to http://localhost:8080.
 --message-id VALUE    Message identifier. Defaults to a generated UUID.
 --timeout SECONDS     HTTP timeout. Defaults to 30.0.
 --show-raw            Print raw SSE JSON payloads.

@@ -263,8 +263,8 @@ For a fast local demo, disable the simulated step delay:
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
-The server listens on `0.0.0.0:8000` by default and advertises
-`http://localhost:8000` in the Agent Card.
+The server listens on `0.0.0.0:8080` by default and advertises
+`http://localhost:8080` in the Agent Card.
 
 ## Configuration
 
@@ -272,7 +272,7 @@ The local sample runner supports these environment variables:
 
 ```text
 A2A_SERVER_HOST              Bind host. Defaults to 0.0.0.0.
-A2A_SERVER_PORT              Bind port. Defaults to 8000.
+A2A_SERVER_PORT              Bind port. Defaults to 8080.
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```
@@ -299,7 +299,7 @@ a2a-langgraph-server
 ## Read the Agent Card
 
 ```bash
-curl -s http://localhost:8000/.well-known/agent-card.json
+curl -s http://localhost:8080/.well-known/agent-card.json
 ```
 
 The response includes the A2A protocol version, supported interface, streaming
@@ -312,7 +312,7 @@ curl -N \
   -H "Content-Type: application/a2a+json" \
   -H "A2A-Version: 1.0" \
   -d '{"message":{"messageId":"message-1","role":"ROLE_USER","parts":[{"text":"hello"}]},"configuration":{"acceptedOutputModes":["text/plain"]}}' \
-  http://localhost:8000/message:stream
+  http://localhost:8080/message:stream
 ```
 
 The stream emits:

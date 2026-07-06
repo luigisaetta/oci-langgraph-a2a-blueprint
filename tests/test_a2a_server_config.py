@@ -18,8 +18,8 @@ def test_load_a2a_server_settings_defaults() -> None:
     settings = load_a2a_server_settings({})
 
     assert settings.host == "0.0.0.0"
-    assert settings.port == 8000
-    assert settings.public_url == "http://localhost:8000"
+    assert settings.port == 8080
+    assert settings.public_url == "http://localhost:8080"
     assert settings.log_level == "INFO"
 
 

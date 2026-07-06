@@ -125,7 +125,7 @@ LangGraph agent.
 The server must support:
 
 * `A2A_SERVER_HOST`, default `0.0.0.0`;
-* `A2A_SERVER_PORT`, default `8000`;
+* `A2A_SERVER_PORT`, default `8080`;
 * `A2A_SERVER_PUBLIC_URL`, default derived from host and port;
 * `AGENT_LOG_LEVEL`, default `INFO`.
 

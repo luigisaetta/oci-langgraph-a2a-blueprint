@@ -30,7 +30,7 @@ In one terminal:
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
-The server listens on `http://localhost:8000` by default.
+The server listens on `http://localhost:8080` by default.
 
 ## Run the Client
 
@@ -62,7 +62,7 @@ status: TASK_STATE_COMPLETED - LangGraph workflow completed.
 
 ```text
 input_text            Text input sent to the A2A agent.
---server-url URL      A2A server base URL. Defaults to http://localhost:8000.
+--server-url URL      A2A server base URL. Defaults to http://localhost:8080.
 --message-id VALUE    Message identifier. Defaults to a generated UUID.
 --timeout SECONDS     HTTP timeout. Defaults to 30.0.
 --show-raw            Print raw decoded SSE JSON payloads.

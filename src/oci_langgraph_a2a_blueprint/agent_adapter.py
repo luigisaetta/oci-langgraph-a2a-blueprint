@@ -22,7 +22,7 @@ from oci_langgraph_a2a_blueprint.agent import (
 from oci_langgraph_a2a_blueprint.parse_utils import parse_float
 
 A2A_PROTOCOL_VERSION = "1.0"
-DEFAULT_SERVER_URL = "http://localhost:8000"
+DEFAULT_SERVER_URL = "http://localhost:8080"
 REST_PROTOCOL_BINDING = "HTTP+JSON"
 AGENT_STEP_SLEEP_SECONDS_ENV = "AGENT_STEP_SLEEP_SECONDS"
 
