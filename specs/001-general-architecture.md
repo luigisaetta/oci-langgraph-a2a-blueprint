@@ -5,24 +5,22 @@ Status: Draft
 
 ## Purpose
 
-This specification defines the first architecture baseline for the OCI LangGraph A2A Blueprint.
+This specification defines a first architecture baseline for the OCI LangGraph A2A Blueprint.
 
 The repository is a blueprint, not a fixed business application. The sample agent logic must be easy for a customer to replace while preserving the runtime architecture, protocol boundary, streaming behaviour, and deployment model.
-
-The first implementation milestone is a bare LangGraph agent. The A2A server wrapper will be implemented after the bare agent exists and is tested.
 
 ## Goals
 
 The solution must provide:
 
-* A minimal LangGraph agent with three sequential steps: `step1`, `step2`, and `step3`.
+* A minimal LangGraph agent with several sequential steps: `step1`, `step2`, and `step3`.
 * A shared state passed through the full graph execution.
 * Each step implemented as a LangChain `Runnable`.
 * Logging at the beginning and end of every step.
 * A configurable sleep delay in every step to simulate long-running work.
 * Streaming updates while the agent is running.
-* A future A2A-compatible HTTP server wrapper that streams updates to clients using Server-Sent Events.
-* A2A protocol support based on the official Python SDK and the latest A2A protocol version currently defined by the upstream specification.
+* An A2A-compatible HTTP server wrapper that streams updates to clients using Server-Sent Events.
+* A2A protocol support based on the official A2A Python SDK and the latest A2A protocol version currently defined by the upstream specification.
 
 ## Verified Upstream Facts
 
@@ -49,17 +47,17 @@ The architecture is based on the following verified upstream facts:
 
 ## Architecture Overview
 
-The solution is composed of two layers:
+The target architecture is composed of two layers:
 
 1. Bare LangGraph agent layer.
 2. A2A HTTP server layer.
 
-The first implementation will build only the bare LangGraph agent layer. The A2A HTTP server layer is described here to ensure the agent shape is compatible with the planned protocol wrapper.
+Both layers are part of the architecture. The LangGraph layer owns the workflow and state transitions, while the A2A layer owns protocol exposure, discovery metadata, task lifecycle mapping, and HTTP streaming.
 
 ```text
 Client
   |
-  | future HTTP/SSE A2A request
+  | HTTP/SSE A2A request
   v
 A2A Server Wrapper
   |
@@ -117,7 +115,7 @@ The default business logic must be intentionally simple because this repository 
 
 The bare LangGraph agent must support streaming so a caller can observe progress while `step1`, `step2`, and `step3` execute.
 
-The initial implementation should expose an internal async streaming interface that yields structured progress events. The future A2A wrapper will map those internal events to A2A streaming events.
+The agent layer must expose an internal async streaming interface that yields structured progress events. The A2A wrapper maps those internal events to A2A streaming events.
 
 Internal progress events should include:
 
@@ -130,9 +128,9 @@ Internal progress events should include:
 
 The bare agent must keep this streaming contract independent from A2A-specific classes. This keeps the core agent testable without an HTTP server and makes the A2A integration a protocol adapter rather than part of the business logic.
 
-## Future A2A Server Wrapper
+## A2A Server Wrapper
 
-The future A2A server must use the official `a2a-sdk` package.
+The A2A server must use the official `a2a-sdk` package.
 
 The server must target A2A protocol version `1.0`. Compatibility with `0.3` may be enabled by the SDK but must not be the primary contract of this blueprint.
 
@@ -144,9 +142,9 @@ The server must expose an A2A agent card. The agent card must declare:
 * a skill describing the sample three-step LangGraph workflow;
 * server URL and protocol binding appropriate for the selected A2A binding.
 
-The preferred first server binding is HTTP+JSON/REST because it exposes `POST /message:stream` with an SSE response. JSON-RPC may be added later if required by interoperability tests or by the reference SDK defaults.
+The preferred server binding is HTTP+JSON/REST because it exposes `POST /message:stream` with an SSE response. JSON-RPC may be added later if required by interoperability tests or by the reference SDK defaults.
 
-The future A2A executor must:
+The A2A executor must:
 
 * implement the SDK `AgentExecutor` interface;
 * translate incoming A2A messages into the bare agent input schema;
@@ -177,7 +175,7 @@ The implementation must avoid printing directly to stdout except in command-line
 
 The sleep duration must be configurable.
 
-The first implementation may use a simple local configuration mechanism, but future deployment-oriented specs must define the complete environment variable set. No secrets or OCI-specific identifiers are required for the bare agent.
+The local implementation may use a simple configuration mechanism, but deployment-oriented specs must define the complete environment variable set. No secrets or OCI-specific identifiers are required for the bare agent.
 
 Candidate configuration values:
 
@@ -195,15 +193,15 @@ This architecture specification does not require:
 * durable external task storage;
 * push notifications;
 * OCI deployment automation;
-* a production-grade A2A server implementation in the first milestone.
+* production hardening beyond the blueprint scope.
 
 These capabilities may be added by later specifications.
 
-## Implementation Milestones
+## Implementation Workstreams
 
-### Milestone 1: Bare LangGraph Agent
+### Bare LangGraph Agent
 
-Implement the bare agent only.
+Implement the core workflow agent.
 
 Expected outputs:
 
@@ -215,7 +213,7 @@ Expected outputs:
 * internal streaming helper;
 * unit tests for normal execution, state updates, logging, sleep configuration, and streaming progress.
 
-### Milestone 2: A2A Server Wrapper
+### A2A Server Wrapper
 
 Wrap the bare agent as an A2A-compatible HTTP server.
 
@@ -228,7 +226,7 @@ Expected outputs:
 * local client or smoke test;
 * unit tests for event mapping and task status transitions.
 
-### Milestone 3: OCI Deployment Blueprint
+### OCI Deployment Blueprint
 
 Add OCI deployment guidance and assets.
 
@@ -244,20 +242,20 @@ Expected outputs:
 
 This architecture specification is accepted when:
 
-* it clearly separates the bare LangGraph agent from the future A2A wrapper;
+* it clearly separates the bare LangGraph agent from the A2A wrapper;
 * it defines the initial three-step graph sequence;
 * it requires each step to be a LangChain `Runnable`;
 * it requires shared state across all steps;
 * it requires logging at step start and completion;
 * it requires sleep-based simulated execution;
 * it requires an internal streaming contract for progress updates;
-* it states that the future A2A wrapper targets protocol version `1.0`;
+* it states that the A2A wrapper targets protocol version `1.0`;
 * it identifies the official A2A Python SDK package as `a2a-sdk`;
-* it defines implementation milestones and test expectations.
+* it defines implementation workstreams and test expectations.
 
 ## Test Expectations
 
-Milestone 1 tests must verify:
+Bare LangGraph agent tests must verify:
 
 * the graph executes `step1`, `step2`, and `step3` in order;
 * each step updates the shared state;
@@ -266,7 +264,7 @@ Milestone 1 tests must verify:
 * streaming yields progress events in the expected order;
 * the final state contains all step outputs and final response text.
 
-Milestone 2 tests must verify:
+A2A server wrapper tests must verify:
 
 * A2A message input is translated into bare-agent input;
 * bare-agent progress events are mapped to A2A task status updates;
@@ -276,7 +274,7 @@ Milestone 2 tests must verify:
 
 ## Open Questions
 
-* Should the first A2A server expose only HTTP+JSON/REST, only JSON-RPC, or both?
+* Should the A2A server expose only HTTP+JSON/REST, only JSON-RPC, or both?
 * Should the bare agent streaming contract expose state snapshots or only event metadata?
-* Should task state be kept only in memory for the blueprint, or should a later milestone include a durable store option?
+* Should task state be kept only in memory for the blueprint, or should a later workstream include a durable store option?
 * Should OCI deployment target a container runtime first, or an OCI Functions style deployment?
