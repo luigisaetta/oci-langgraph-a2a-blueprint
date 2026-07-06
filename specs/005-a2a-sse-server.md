@@ -97,16 +97,18 @@ The public server factory must be named `create_server`. It must require an
 `agent_card`. It must not expose or load sample-agent settings such as
 `step_sleep_seconds`.
 
-The sample agent definition is the plug point for replacing the blueprint agent.
-It owns:
+The agent definition module is the plug point for replacing the blueprint agent.
+It must expose a function named `create_agent_definition(server_url)` that
+returns the agent factory and Agent Card. It owns:
 
 * sample agent factory creation;
 * sample Agent Card creation;
 * mapping sample settings to sample agent constructor parameters.
 
-The local sample server entry point must not know sample-agent constructor
-parameters such as `step_sleep_seconds`. Those parameters are resolved inside
-the sample agent definition.
+The local A2A server entry point must not know sample-agent constructor
+parameters such as `step_sleep_seconds`. It must call only
+`create_agent_definition(server_url)`. Agent-specific parameters are resolved
+inside the agent definition module.
 
 ## Event Mapping
 
@@ -139,6 +141,8 @@ This specification is accepted when:
 * the reusable server factory is named `create_server`;
 * the reusable server factory requires `agent_factory`;
 * the reusable server factory does not expose sample-agent sleep settings;
+* the local server entry point is implemented in `a2a_server.py`;
+* the agent definition module exposes `create_agent_definition(server_url)`;
 * the Starlette app exposes only Agent Card discovery and `POST /message:stream`;
 * `POST /message:stream` returns `text/event-stream`;
 * the server accepts a custom streaming agent factory without changing route

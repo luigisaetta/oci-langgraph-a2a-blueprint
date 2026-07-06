@@ -38,24 +38,19 @@ class AgentDefinition:
     agent_card: a2a_types.AgentCard
 
 
-def create_sample_agent_definition(
+def create_agent_definition(
     server_url: str = DEFAULT_SERVER_URL,
-    step_sleep_seconds: float | None = None,
 ) -> AgentDefinition:
-    """Create the sample LangGraph agent definition.
+    """Create the LangGraph agent definition exposed by the A2A server.
 
     Args:
         server_url: Public base URL where this A2A server is reachable.
-        step_sleep_seconds: Optional simulated work duration for each sample
-            step. Defaults to the local sample-agent environment setting.
 
     Returns:
-        Agent definition containing sample factory and Agent Card.
+        Agent definition containing the agent factory and Agent Card.
     """
     return AgentDefinition(
-        agent_factory=create_sample_agent_factory(
-            step_sleep_seconds=step_sleep_seconds,
-        ),
+        agent_factory=create_sample_agent_factory(),
         agent_card=create_sample_agent_card(server_url=server_url),
     )
 

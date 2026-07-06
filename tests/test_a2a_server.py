@@ -17,6 +17,7 @@ from starlette.testclient import TestClient
 from oci_langgraph_a2a_blueprint.sample_agent_definition import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
+    create_agent_definition,
     load_sample_agent_settings,
     create_sample_agent_card,
     create_sample_agent_factory,
@@ -93,6 +94,16 @@ def test_create_server_signature_has_only_server_concerns() -> None:
 
     assert list(parameters) == ["agent_factory", "agent_card"]
     assert "step_sleep_seconds" not in parameters
+
+
+def test_agent_definition_contract_uses_generic_function_name() -> None:
+    """Verify the server bootstrap can load the standard agent definition."""
+    parameters = inspect.signature(create_agent_definition).parameters
+    definition = create_agent_definition(server_url="http://testserver")
+
+    assert list(parameters) == ["server_url"]
+    assert definition.agent_card.supported_interfaces[0].url == "http://testserver"
+    assert callable(definition.agent_factory)
 
 
 def test_agent_card_endpoint_returns_json() -> None:

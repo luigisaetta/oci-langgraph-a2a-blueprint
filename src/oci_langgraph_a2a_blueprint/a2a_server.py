@@ -7,15 +7,22 @@ Description: A2A HTTP/SSE server factory for the OCI LangGraph A2A blueprint.
 
 from __future__ import annotations
 
+import logging
+
 from a2a import types as a2a_types
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.routes.agent_card_routes import create_agent_card_routes
 from a2a.server.routes.rest_routes import create_rest_routes
 from a2a.server.tasks import InMemoryTaskStore
 from starlette.applications import Starlette
+import uvicorn
 
 from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
 from oci_langgraph_a2a_blueprint.a2a_executor import LangGraphAgentExecutor
+from oci_langgraph_a2a_blueprint.config import load_a2a_server_settings
+from oci_langgraph_a2a_blueprint.sample_agent_definition import (
+    create_agent_definition,
+)
 
 
 def create_server(
@@ -56,3 +63,23 @@ def _streaming_only_routes(request_handler: DefaultRequestHandler) -> list:
         for route in create_rest_routes(request_handler)
         if getattr(route, "path", None) == "/message:stream"
     ]
+
+
+def main() -> None:
+    """Run the local A2A server with uvicorn."""
+    settings = load_a2a_server_settings()
+    agent_definition = create_agent_definition(server_url=settings.public_url)
+
+    logging.basicConfig(level=getattr(logging, settings.log_level))
+    uvicorn.run(
+        create_server(
+            agent_factory=agent_definition.agent_factory,
+            agent_card=agent_definition.agent_card,
+        ),
+        host=settings.host,
+        port=settings.port,
+    )
+
+
+if __name__ == "__main__":
+    main()
