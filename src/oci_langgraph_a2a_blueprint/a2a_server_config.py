@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
-Description: Runtime configuration helpers for local server and client commands.
+Description: Runtime configuration helpers for the local A2A server.
 Agent customization: Do not add agent-specific settings here.
 """
 
@@ -14,7 +14,6 @@ from dataclasses import dataclass
 
 DEFAULT_A2A_SERVER_HOST = "0.0.0.0"
 DEFAULT_A2A_SERVER_PORT = 8000
-DEFAULT_A2A_CLIENT_SERVER_URL = "http://localhost:8000"
 DEFAULT_AGENT_LOG_LEVEL = "INFO"
 
 

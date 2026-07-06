@@ -13,7 +13,7 @@ The blueprint currently connects the key pieces:
 
 - a LangGraph agent with explicit state and replaceable workflow steps;
 - an A2A-compatible HTTP/SSE API layer with Agent Card metadata, task handling, and streaming responses;
-- runtime configuration that is centralized and easy to audit;
+- A2A server runtime configuration that is centralized and easy to audit;
 - local Python clients for direct agent execution and A2A streaming execution;
 - tests and specifications that make the behavior understandable, repeatable, and safe to evolve.
 
@@ -31,9 +31,9 @@ The blueprint currently connects the key pieces:
 - HTTP streaming endpoint at `POST /message:stream`.
 - Server-Sent Events for task status updates, artifact updates, and completion.
 - Injectable streaming agent factory for reusing the A2A server with another LangGraph agent.
-- Centralized runtime configuration for server host, port, public URL, log level, and sample-agent delay.
+- Centralized A2A server runtime configuration for host, port, public URL, and log level.
 - Python A2A streaming CLI client for testing the public protocol boundary.
-- Unit tests for the bare agent, direct client, A2A server, runtime configuration, and A2A streaming client.
+- Unit tests for the bare agent, direct client, A2A server, A2A server configuration, and A2A streaming client.
 
 ## Current Implementation
 

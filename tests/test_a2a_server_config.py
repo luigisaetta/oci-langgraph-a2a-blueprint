@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
-Description: Unit tests for runtime configuration helpers.
+Description: Unit tests for A2A server runtime configuration helpers.
 Agent customization: Update only for server or client configuration changes.
 """
 
@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from oci_langgraph_a2a_blueprint.config import load_a2a_server_settings
+from oci_langgraph_a2a_blueprint.a2a_server_config import load_a2a_server_settings
 
 
 def test_load_a2a_server_settings_defaults() -> None:

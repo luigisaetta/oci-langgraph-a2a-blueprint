@@ -1,4 +1,4 @@
-# Runtime Configuration Specification
+# A2A Server Runtime Configuration Specification
 
 Date: 2026-07-06
 Status: Draft
@@ -6,14 +6,14 @@ Status: Draft
 ## Purpose
 
 This specification defines a small centralized runtime configuration module for
-the local A2A server and demo clients.
+the local A2A server.
 
 The goal is to keep environment variable parsing out of server wiring code while
 remaining easy to read and modify.
 
 ## Scope
 
-The configuration module must:
+The A2A server configuration module must:
 
 * expose a typed settings object for the local A2A server;
 * read environment variables from an injectable mapping for testability;
@@ -22,7 +22,7 @@ The configuration module must:
 * validate numeric values with clear `ValueError` messages;
 * keep sample-agent settings separate from generic A2A server settings.
 
-The configuration module must not:
+The A2A server configuration module must not:
 
 * read secrets;
 * call OCI services;
@@ -48,7 +48,7 @@ local server settings object.
 
 This specification is accepted when:
 
-* server configuration is loaded through a dedicated module;
+* A2A server configuration is loaded through a dedicated module;
 * `a2a_server.py` no longer parses environment variables directly;
 * defaults match the existing local server behaviour;
 * invalid port values raise clear errors;

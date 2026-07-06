@@ -20,7 +20,7 @@ import uvicorn
 
 from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
 from oci_langgraph_a2a_blueprint.a2a_executor import LangGraphAgentExecutor
-from oci_langgraph_a2a_blueprint.config import load_a2a_server_settings
+from oci_langgraph_a2a_blueprint.a2a_server_config import load_a2a_server_settings
 from oci_langgraph_a2a_blueprint.agent_adapter import create_agent_adapter
 
 
