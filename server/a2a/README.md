@@ -38,16 +38,17 @@ registers `LangGraphAgentExecutor` as the protocol adapter, uses the SDK
 streaming route.
 
 ```python
-agent_card = create_agent_card(server_url=server_url)
+resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
+resolved_agent_factory = agent_factory or create_default_agent_factory(
+    step_sleep_seconds=step_sleep_seconds,
+)
 request_handler = DefaultRequestHandler(
-    agent_executor=LangGraphAgentExecutor(
-        step_sleep_seconds=step_sleep_seconds,
-    ),
+    agent_executor=LangGraphAgentExecutor(agent_factory=resolved_agent_factory),
     task_store=InMemoryTaskStore(),
-    agent_card=agent_card,
+    agent_card=resolved_agent_card,
 )
 
-routes = create_agent_card_routes(agent_card)
+routes = create_agent_card_routes(resolved_agent_card)
 routes.extend(_streaming_only_routes(request_handler))
 app = Starlette(routes=routes)
 ```
@@ -58,7 +59,7 @@ request context, invokes the bare LangGraph agent streaming API, and maps each
 internal event to A2A task events.
 
 ```python
-agent = BareLangGraphAgent(step_sleep_seconds=self.step_sleep_seconds)
+agent = self.agent_factory()
 async for event in agent.stream(context.get_user_input()):
     if event.event_type == "step_completed":
         await updater.update_status(
@@ -92,33 +93,60 @@ The first event is an explicit A2A `Task` with `TASK_STATE_SUBMITTED`. The A2A
 SDK requires task-mode streams to start with a `Task` before status or artifact
 updates are emitted.
 
+The default sample server still supports `AGENT_STEP_SLEEP_SECONDS`, but that is
+only sample-agent configuration. The reusable wrapper depends on an
+`agent_factory`, not on the sleep parameter.
+
 ## Adapting This Server to Another LangGraph Agent
 
 For another LangGraph agent, keep the A2A server structure and replace only the
-agent-specific pieces.
+agent-specific pieces. The main extension point is `agent_factory`.
+
+Your custom agent should provide this minimal stream method:
+
+```python
+class MyLangGraphAgent:
+    async def stream(self, input_text: str):
+        yield AgentProgressEvent(
+            event_type="step_completed",
+            step_name="my_node",
+            message="my_node completed",
+            state={"final_output": "partial or final value"},
+        )
+        yield AgentProgressEvent(
+            event_type="agent_completed",
+            step_name=None,
+            message="agent completed",
+            state={"final_output": "final response text"},
+        )
+```
+
+Then pass a factory to the server app:
+
+```python
+from oci_langgraph_a2a_blueprint.a2a_server import create_app
+
+
+def create_my_agent():
+    return MyLangGraphAgent(...)
+
+
+app = create_app(
+    server_url="http://localhost:8000",
+    agent_factory=create_my_agent,
+)
+```
 
 Change `src/oci_langgraph_a2a_blueprint/a2a_executor.py` when:
 
-* the bare agent class changes;
 * the input extraction needs more than plain text;
 * internal stream event names are different;
 * final output is stored under a different state key;
 * the agent should emit multiple artifacts instead of one final text artifact.
 
-The smallest replacement is usually this line:
-
-```python
-agent = BareLangGraphAgent(step_sleep_seconds=self.step_sleep_seconds)
-```
-
-Replace it with your own agent class:
-
-```python
-agent = MyLangGraphAgent(...)
-```
-
-Then adapt the event mapping loop so it matches your agent's stream contract.
-The recommended internal contract is still simple:
+If your custom agent follows the same event contract and keeps final output in
+`state["final_output"]`, you should not need to modify the executor. The
+recommended internal contract is intentionally small:
 
 ```python
 async for event in agent.stream(input_text):
@@ -147,6 +175,16 @@ Change `src/oci_langgraph_a2a_blueprint/a2a_server.py` only when:
 * task storage should move from `InMemoryTaskStore` to a durable store;
 * authentication, tenancy, or deployment-specific middleware is introduced;
 * multiple executors or multiple agent cards are needed.
+
+For a custom Agent Card, pass `agent_card` to `create_app()` or change
+`src/oci_langgraph_a2a_blueprint/a2a_card.py`:
+
+```python
+app = create_app(
+    agent_factory=create_my_agent,
+    agent_card=my_agent_card,
+)
+```
 
 For most blueprint adaptations, the stable boundary is:
 

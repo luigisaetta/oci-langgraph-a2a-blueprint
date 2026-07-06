@@ -12,3 +12,4 @@
 * Added the first A2A HTTP/SSE server wrapper with Agent Card discovery and streaming execution.
 * Added local A2A server run documentation.
 * Expanded the local A2A server README with wrapper architecture and adaptation guidance.
+* Generalized A2A server reuse by injecting streaming agent factories.

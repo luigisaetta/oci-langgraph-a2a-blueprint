@@ -11,6 +11,7 @@ import logging
 import os
 
 import uvicorn
+from a2a import types as a2a_types
 from a2a.server.request_handlers import DefaultRequestHandler
 from a2a.server.routes.agent_card_routes import create_agent_card_routes
 from a2a.server.routes.rest_routes import create_rest_routes
@@ -18,7 +19,11 @@ from a2a.server.tasks import InMemoryTaskStore
 from starlette.applications import Starlette
 
 from oci_langgraph_a2a_blueprint.a2a_card import DEFAULT_SERVER_URL, create_agent_card
-from oci_langgraph_a2a_blueprint.a2a_executor import LangGraphAgentExecutor
+from oci_langgraph_a2a_blueprint.a2a_executor import (
+    AgentFactory,
+    LangGraphAgentExecutor,
+    create_default_agent_factory,
+)
 from oci_langgraph_a2a_blueprint.agent import DEFAULT_STEP_SLEEP_SECONDS
 
 DEFAULT_HOST = "0.0.0.0"
@@ -29,26 +34,31 @@ DEFAULT_LOG_LEVEL = "INFO"
 def create_app(
     server_url: str = DEFAULT_SERVER_URL,
     step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
+    agent_factory: AgentFactory | None = None,
+    agent_card: a2a_types.AgentCard | None = None,
 ) -> Starlette:
     """Create the A2A Starlette application.
 
     Args:
         server_url: Public base URL advertised by the Agent Card.
-        step_sleep_seconds: Simulated work duration for each LangGraph step.
+        step_sleep_seconds: Simulated work duration for the sample agent.
+        agent_factory: Optional factory for a custom streaming LangGraph agent.
+        agent_card: Optional Agent Card for a custom agent.
 
     Returns:
         Configured Starlette application exposing Agent Card and SSE streaming.
     """
-    agent_card = create_agent_card(server_url=server_url)
+    resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
+    resolved_agent_factory = agent_factory or create_default_agent_factory(
+        step_sleep_seconds=step_sleep_seconds,
+    )
     request_handler = DefaultRequestHandler(
-        agent_executor=LangGraphAgentExecutor(
-            step_sleep_seconds=step_sleep_seconds,
-        ),
+        agent_executor=LangGraphAgentExecutor(agent_factory=resolved_agent_factory),
         task_store=InMemoryTaskStore(),
-        agent_card=agent_card,
+        agent_card=resolved_agent_card,
     )
 
-    routes = create_agent_card_routes(agent_card)
+    routes = create_agent_card_routes(resolved_agent_card)
     routes.extend(_streaming_only_routes(request_handler))
     return Starlette(routes=routes)
 

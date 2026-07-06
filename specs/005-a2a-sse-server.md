@@ -22,7 +22,9 @@ The server must:
 * declare text input and text output modes;
 * expose the HTTP+JSON/REST streaming endpoint `POST /message:stream`;
 * return streaming responses as Server-Sent Events with `text/event-stream`;
-* wrap `BareLangGraphAgent` through the SDK `AgentExecutor` interface;
+* wrap the sample `BareLangGraphAgent` through the SDK `AgentExecutor` interface;
+* allow another LangGraph-compatible streaming agent to be injected without
+  modifying the server route setup;
 * map bare-agent progress events to A2A task status updates;
 * map final agent output to an A2A artifact update;
 * complete the A2A task after the final output artifact is sent;
@@ -86,6 +88,11 @@ SDK request context.
 Only text input is supported. If the extracted text is empty, the executor must
 mark the A2A task as failed.
 
+The executor must receive agent instances from an injectable factory. The
+default factory creates the sample `BareLangGraphAgent`, but customers should be
+able to pass a different factory to reuse the same A2A server wrapper with
+another LangGraph agent.
+
 ## Event Mapping
 
 For each internal bare-agent progress event:
@@ -106,6 +113,9 @@ The server must support:
 * `AGENT_STEP_SLEEP_SECONDS`, default `1.0`;
 * `AGENT_LOG_LEVEL`, default `INFO`.
 
+`AGENT_STEP_SLEEP_SECONDS` applies only to the default sample agent factory.
+Custom agent factories may ignore it and use their own configuration.
+
 ## Acceptance Criteria
 
 This specification is accepted when:
@@ -113,6 +123,8 @@ This specification is accepted when:
 * the server can build a valid Agent Card with A2A protocol version `1.0`;
 * the Starlette app exposes only Agent Card discovery and `POST /message:stream`;
 * `POST /message:stream` returns `text/event-stream`;
+* the server accepts a custom streaming agent factory without changing route
+  setup code;
 * an A2A streaming request emits `step1`, `step2`, and `step3` progress;
 * the stream emits a final text artifact;
 * the stream ends with `TASK_STATE_COMPLETED`;

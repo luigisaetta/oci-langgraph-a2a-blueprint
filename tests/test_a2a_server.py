@@ -7,6 +7,7 @@ Description: Unit tests for the A2A HTTP/SSE server wrapper.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 import json
 
 from starlette.testclient import TestClient
@@ -17,6 +18,41 @@ from oci_langgraph_a2a_blueprint.a2a_card import (
     create_agent_card,
 )
 from oci_langgraph_a2a_blueprint.a2a_server import create_app
+from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
+
+
+class CustomStreamingAgent:
+    """Test streaming agent used to verify server reuse."""
+
+    async def stream(self, input_text: str) -> AsyncIterator[AgentProgressEvent]:
+        """Stream custom progress and final output events.
+
+        Args:
+            input_text: User input extracted from the A2A request.
+
+        Yields:
+            Progress and completion events using the server stream contract.
+        """
+        yield AgentProgressEvent(
+            event_type="step_completed",
+            step_name="custom_step",
+            message="custom step completed",
+            state={
+                "input_text": input_text,
+                "progress": ["custom step completed"],
+                "final_output": f"custom processed: {input_text}",
+            },
+        )
+        yield AgentProgressEvent(
+            event_type="agent_completed",
+            step_name=None,
+            message="custom agent completed",
+            state={
+                "input_text": input_text,
+                "progress": ["custom step completed"],
+                "final_output": f"custom processed: {input_text}",
+            },
+        )
 
 
 def test_agent_card_declares_a2a_1_streaming() -> None:
@@ -88,6 +124,37 @@ def test_message_stream_returns_sse_progress_and_completion() -> None:
     assert "step3 processed: step2 processed: step1 processed: hello" in (
         serialized_events
     )
+    assert "TASK_STATE_COMPLETED" in serialized_events
+
+
+def test_message_stream_accepts_custom_agent_factory() -> None:
+    """Verify the server can wrap another streaming agent via factory injection."""
+    app = create_app(
+        server_url="http://testserver",
+        agent_factory=CustomStreamingAgent,
+    )
+    payload = {
+        "message": {
+            "messageId": "message-1",
+            "role": "ROLE_USER",
+            "parts": [{"text": "hello"}],
+        },
+        "configuration": {"acceptedOutputModes": ["text/plain"]},
+    }
+
+    with TestClient(app) as client:
+        with client.stream(
+            "POST",
+            "/message:stream",
+            json=payload,
+            headers={"A2A-Version": "1.0"},
+        ) as response:
+            assert response.status_code == 200
+            events = _read_sse_events(response.iter_lines())
+
+    serialized_events = json.dumps(events)
+    assert "custom step completed" in serialized_events
+    assert "custom processed: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
 
 

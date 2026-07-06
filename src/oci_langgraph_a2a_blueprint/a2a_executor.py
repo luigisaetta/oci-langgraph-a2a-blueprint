@@ -7,6 +7,9 @@ Description: A2A AgentExecutor adapter for the bare LangGraph agent.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator, Callable
+from typing import Protocol
+
 from a2a import types as a2a_types
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
@@ -16,20 +19,48 @@ from oci_langgraph_a2a_blueprint.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
 )
+from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
+
+
+class StreamingAgent(Protocol):
+    """Minimal stream contract required by the A2A executor."""
+
+    def stream(self, input_text: str) -> AsyncIterator[AgentProgressEvent]:
+        """Stream agent progress events for the provided input text."""
+
+
+AgentFactory = Callable[[], StreamingAgent]
+
+
+def create_default_agent_factory(
+    step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
+) -> AgentFactory:
+    """Create the default sample LangGraph agent factory.
+
+    Args:
+        step_sleep_seconds: Simulated work duration for each sample step.
+
+    Returns:
+        Factory that creates configured sample agent instances.
+    """
+    return lambda: BareLangGraphAgent(step_sleep_seconds=step_sleep_seconds)
 
 
 class LangGraphAgentExecutor(AgentExecutor):
-    """Bridge the bare LangGraph agent to the A2A SDK executor interface.
+    """Bridge a streaming LangGraph agent to the A2A SDK executor interface.
 
     Args:
-        step_sleep_seconds: Simulated work duration passed to the bare agent.
+        agent_factory: Factory that creates one streaming agent per request.
+        final_output_key: State key used to read the final artifact text.
     """
 
     def __init__(
         self,
-        step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
+        agent_factory: AgentFactory | None = None,
+        final_output_key: str = "final_output",
     ) -> None:
-        self.step_sleep_seconds = step_sleep_seconds
+        self.agent_factory = agent_factory or create_default_agent_factory()
+        self.final_output_key = final_output_key
 
     async def execute(
         self,
@@ -63,7 +94,7 @@ class LangGraphAgentExecutor(AgentExecutor):
             )
 
             final_output = ""
-            agent = BareLangGraphAgent(step_sleep_seconds=self.step_sleep_seconds)
+            agent = self.agent_factory()
             async for event in agent.stream(context.get_user_input()):
                 if event.event_type == "step_completed":
                     await updater.update_status(
@@ -75,7 +106,7 @@ class LangGraphAgentExecutor(AgentExecutor):
                         },
                     )
                 elif event.event_type == "agent_completed":
-                    final_output = event.state.get("final_output", "")
+                    final_output = event.state.get(self.final_output_key, "")
 
             await updater.add_artifact(
                 parts=[a2a_types.Part(text=final_output)],
