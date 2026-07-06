@@ -1,0 +1,23 @@
+[project]
+name = "oci-langgraph-a2a-blueprint"
+version = "0.1.0"
+description = "Blueprint for deploying a LangGraph agent on OCI as an A2A-compatible server."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.pylint.main]
+py-version = "3.11"
+source-roots = ["src"]
+
+[tool.pylint.messages_control]
+disable = [
+    "too-few-public-methods",
+]

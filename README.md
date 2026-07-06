@@ -16,4 +16,16 @@ The blueprint will show how to connect the key pieces:
 - OCI-ready runtime configuration, deployment assets, and operational guidance;
 - tests and specifications that make the behavior understandable, repeatable, and safe to evolve.
 
+## Current Implementation
+
+The repository currently includes the first bare LangGraph agent implementation. It executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
+
+```python
+from oci_langgraph_a2a_blueprint import BareLangGraphAgent
+
+agent = BareLangGraphAgent(step_sleep_seconds=0)
+result = agent.invoke("hello")
+print(result["final_output"])
+```
+
 The project follows a strict spec-driven development workflow. Every meaningful feature starts with a specification in `specs/`, and implementation must stay aligned with the approved behavior. This keeps the repository useful as both working code and a reference architecture for building interoperable agent services on OCI.
