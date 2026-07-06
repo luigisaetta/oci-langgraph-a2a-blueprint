@@ -1,0 +1,56 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pylint.d/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments and local environments
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Jupyter and notebooks
+.ipynb_checkpoints/
+
+# Logs and runtime files
+*.log
+logs/
+tmp/
+temp/
+
+# OCI and local credentials
+*.pem
+*.key
+oci_config
+.oci/
+
+# Deployment and infrastructure local state
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
