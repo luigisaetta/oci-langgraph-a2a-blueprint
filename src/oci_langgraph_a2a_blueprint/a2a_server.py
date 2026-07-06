@@ -68,13 +68,14 @@ def _streaming_only_routes(request_handler: DefaultRequestHandler) -> list:
 def main() -> None:
     """Run the local A2A server with uvicorn."""
     settings = load_a2a_server_settings()
-    agent_definition = create_agent_definition(server_url=settings.public_url)
+    agent_definition = create_agent_definition()
+    agent_card = agent_definition.agent_card_factory(settings.public_url)
 
     logging.basicConfig(level=getattr(logging, settings.log_level))
     uvicorn.run(
         create_server(
             agent_factory=agent_definition.agent_factory,
-            agent_card=agent_definition.agent_card,
+            agent_card=agent_card,
         ),
         host=settings.host,
         port=settings.port,

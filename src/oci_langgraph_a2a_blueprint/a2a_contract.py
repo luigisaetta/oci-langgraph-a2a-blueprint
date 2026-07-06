@@ -10,6 +10,8 @@ from __future__ import annotations
 from collections.abc import AsyncIterator, Callable
 from typing import Protocol
 
+from a2a import types as a2a_types
+
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
 
@@ -21,3 +23,4 @@ class StreamingAgent(Protocol):
 
 
 AgentFactory = Callable[[], StreamingAgent]
+AgentCardFactory = Callable[[str], a2a_types.AgentCard]

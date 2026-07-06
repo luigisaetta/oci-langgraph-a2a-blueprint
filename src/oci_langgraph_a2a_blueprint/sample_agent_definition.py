@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from a2a import types as a2a_types
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
+from oci_langgraph_a2a_blueprint.a2a_contract import AgentCardFactory, AgentFactory
 from oci_langgraph_a2a_blueprint.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
@@ -31,27 +31,23 @@ class AgentDefinition:
 
     Attributes:
         agent_factory: Factory that creates streaming agent instances.
-        agent_card: A2A Agent Card describing the exposed agent.
+        agent_card_factory: Factory that creates the public Agent Card for a
+            server URL.
     """
 
     agent_factory: AgentFactory
-    agent_card: a2a_types.AgentCard
+    agent_card_factory: AgentCardFactory
 
 
-def create_agent_definition(
-    server_url: str = DEFAULT_SERVER_URL,
-) -> AgentDefinition:
+def create_agent_definition() -> AgentDefinition:
     """Create the LangGraph agent definition exposed by the A2A server.
 
-    Args:
-        server_url: Public base URL where this A2A server is reachable.
-
     Returns:
-        Agent definition containing the agent factory and Agent Card.
+        Agent definition containing the agent factory and Agent Card factory.
     """
     return AgentDefinition(
         agent_factory=create_sample_agent_factory(),
-        agent_card=create_sample_agent_card(server_url=server_url),
+        agent_card_factory=create_sample_agent_card,
     )
 
 

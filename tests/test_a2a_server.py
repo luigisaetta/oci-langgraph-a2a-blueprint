@@ -99,11 +99,13 @@ def test_create_server_signature_has_only_server_concerns() -> None:
 def test_agent_definition_contract_uses_generic_function_name() -> None:
     """Verify the server bootstrap can load the standard agent definition."""
     parameters = inspect.signature(create_agent_definition).parameters
-    definition = create_agent_definition(server_url="http://testserver")
+    definition = create_agent_definition()
+    agent_card = definition.agent_card_factory("http://testserver")
 
-    assert list(parameters) == ["server_url"]
-    assert definition.agent_card.supported_interfaces[0].url == "http://testserver"
+    assert list(parameters) == []
+    assert agent_card.supported_interfaces[0].url == "http://testserver"
     assert callable(definition.agent_factory)
+    assert callable(definition.agent_card_factory)
 
 
 def test_agent_card_endpoint_returns_json() -> None:

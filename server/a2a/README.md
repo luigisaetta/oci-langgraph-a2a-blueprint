@@ -38,16 +38,14 @@ executor. A pluggable agent must provide an async `stream(input_text)` method
 that yields `AgentProgressEvent` objects.
 
 `sample_agent_definition.py` is the file to copy or edit when replacing the
-sample agent. It must expose `create_agent_definition(server_url)`, and it owns
-the agent factory plus Agent Card.
+sample agent. It must expose `create_agent_definition()`, and it owns the agent
+factory plus Agent Card factory.
 
 ```python
-def create_agent_definition(
-    server_url: str,
-) -> AgentDefinition:
+def create_agent_definition() -> AgentDefinition:
     return AgentDefinition(
         agent_factory=create_sample_agent_factory(),
-        agent_card=create_sample_agent_card(server_url=server_url),
+        agent_card_factory=create_sample_agent_card,
     )
 ```
 
@@ -85,19 +83,18 @@ def create_server(
 `a2a_server.py` also contains the local entry point behind the
 `a2a-langgraph-server` command. It reads local server settings, asks
 `sample_agent_definition.py` for the agent definition through the standard
-`create_agent_definition(server_url)` function, and then calls the generic
-`create_server()`.
+`create_agent_definition()` function, creates the Agent Card with the server
+public URL, and then calls the generic `create_server()`.
 
 ```python
 settings = load_a2a_server_settings()
-agent_definition = create_agent_definition(
-    server_url=settings.public_url,
-)
+agent_definition = create_agent_definition()
+agent_card = agent_definition.agent_card_factory(settings.public_url)
 
 uvicorn.run(
     create_server(
         agent_factory=agent_definition.agent_factory,
-        agent_card=agent_definition.agent_card,
+        agent_card=agent_card,
     ),
     host=settings.host,
     port=settings.port,
@@ -185,10 +182,10 @@ def create_my_agent():
     return MyLangGraphAgent(...)
 
 
-def create_agent_definition(server_url: str) -> AgentDefinition:
+def create_agent_definition() -> AgentDefinition:
     return AgentDefinition(
         agent_factory=create_my_agent,
-        agent_card=create_my_agent_card(server_url),
+        agent_card_factory=create_my_agent_card,
     )
 ```
 
