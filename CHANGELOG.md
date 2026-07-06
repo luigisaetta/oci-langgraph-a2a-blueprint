@@ -15,3 +15,4 @@
 * Generalized A2A server reuse by injecting streaming agent factories.
 * Added centralized runtime configuration loading for local server settings.
 * Added the A2A streaming Python CLI client, documentation, and tests.
+* Updated the main README with the current feature list and quickstart.

@@ -9,16 +9,35 @@ Build a production-oriented LangGraph agent, package it as an A2A-compatible ser
 
 This repository is a blueprint for teams that want to move from an agent prototype to a cloud-ready service with a clear protocol boundary. The goal is not only to run a LangGraph workflow, but to expose it through a standard A2A server interface so that other agents, applications, and orchestration layers can discover it, call it, and reason about its task lifecycle.
 
-The blueprint will show how to connect the key pieces:
+The blueprint currently connects the key pieces:
 
-- a LangGraph agent with explicit state, nodes, tools, and model configuration;
-- an A2A-compatible API layer with agent card metadata, request validation, task handling, and structured responses;
-- OCI-ready runtime configuration, deployment assets, and operational guidance;
+- a LangGraph agent with explicit state and replaceable workflow steps;
+- an A2A-compatible HTTP/SSE API layer with Agent Card metadata, task handling, and streaming responses;
+- runtime configuration that is centralized and easy to audit;
+- local Python clients for direct agent execution and A2A streaming execution;
 - tests and specifications that make the behavior understandable, repeatable, and safe to evolve.
+
+## Features
+
+- Spec-driven development workflow with specifications under `specs/`.
+- Bare LangGraph agent with `step1`, `step2`, and `step3` executed in sequence.
+- Shared typed agent state with per-step outputs and final output.
+- Each sample step implemented as a readable LangChain `Runnable`.
+- Configurable simulated step duration for local demos and tests.
+- Internal async streaming API for bare-agent progress events.
+- Direct Python CLI client for invoking the bare agent without A2A.
+- A2A `1.0` HTTP+JSON/REST server wrapper using the official A2A Python SDK.
+- Public Agent Card discovery at `/.well-known/agent-card.json`.
+- HTTP streaming endpoint at `POST /message:stream`.
+- Server-Sent Events for task status updates, artifact updates, and completion.
+- Injectable streaming agent factory for reusing the A2A server with another LangGraph agent.
+- Centralized runtime configuration for server host, port, public URL, log level, and sample-agent delay.
+- Python A2A streaming CLI client for testing the public protocol boundary.
+- Unit tests for the bare agent, direct client, A2A server, runtime configuration, and A2A streaming client.
 
 ## Current Implementation
 
-The repository currently includes the first bare LangGraph agent implementation and the first A2A HTTP/SSE wrapper.
+The repository includes a sample bare LangGraph agent and an A2A HTTP/SSE wrapper.
 
 The bare agent executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
 
@@ -38,6 +57,8 @@ The A2A server exposes:
 It intentionally focuses on the A2A 1.0 HTTP+JSON/REST streaming path with Server-Sent Events.
 See [server/a2a/README.md](server/a2a/README.md) for detailed local run instructions.
 
+## Quickstart
+
 Start the local server:
 
 ```bash
@@ -46,7 +67,14 @@ python -m pip install --no-deps -e .
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
-Send a streaming request:
+In another terminal, call the server with the Python A2A streaming client:
+
+```bash
+conda activate oci-langgraph-a2a-blueprint
+a2a-stream-client "hello"
+```
+
+Or send a raw streaming request:
 
 ```bash
 curl -N \
@@ -56,10 +84,17 @@ curl -N \
   http://localhost:8000/message:stream
 ```
 
-You can also use the Python A2A streaming client:
+For direct in-process agent execution without A2A:
 
 ```bash
-a2a-stream-client "hello"
+direct-agent-cli "hello" --sleep-seconds 0
 ```
+
+## Documentation
+
+- [server/a2a/README.md](server/a2a/README.md): local A2A server usage and wrapper architecture.
+- [clients/a2a-stream/README.md](clients/a2a-stream/README.md): A2A streaming client usage.
+- [clients/direct-agent/README.md](clients/direct-agent/README.md): direct bare-agent client usage.
+- [specs/](specs/): behaviour and architecture specifications.
 
 The project follows a strict spec-driven development workflow. Every meaningful feature starts with a specification in `specs/`, and implementation must stay aligned with the approved behavior. This keeps the repository useful as both working code and a reference architecture for building interoperable agent services on OCI.
