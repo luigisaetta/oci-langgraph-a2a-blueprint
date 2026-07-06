@@ -17,6 +17,7 @@ from starlette.testclient import TestClient
 from oci_langgraph_a2a_blueprint.sample_agent_definition import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
+    load_sample_agent_settings,
     create_sample_agent_card,
     create_sample_agent_factory,
 )
@@ -176,6 +177,23 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
     assert "custom step completed" in serialized_events
     assert "custom processed: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
+
+
+def test_sample_agent_settings_read_agent_sleep_value() -> None:
+    """Verify sample-agent sleep configuration is owned by the agent plug point."""
+    settings = load_sample_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "0.25"})
+
+    assert settings.step_sleep_seconds == 0.25
+
+
+def test_sample_agent_settings_reject_invalid_sleep_value() -> None:
+    """Verify invalid sample-agent sleep values fail with a clear error."""
+    try:
+        load_sample_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "abc"})
+    except ValueError as exc:
+        assert str(exc) == "AGENT_STEP_SLEEP_SECONDS must be a float"
+    else:  # pragma: no cover
+        raise AssertionError("Expected invalid sleep value to raise ValueError")
 
 
 def _custom_agent_card() -> a2a_types.AgentCard:

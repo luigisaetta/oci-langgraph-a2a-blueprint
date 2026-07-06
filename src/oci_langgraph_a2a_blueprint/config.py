@@ -11,8 +11,6 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from oci_langgraph_a2a_blueprint.agent import DEFAULT_STEP_SLEEP_SECONDS
-
 DEFAULT_A2A_SERVER_HOST = "0.0.0.0"
 DEFAULT_A2A_SERVER_PORT = 8000
 DEFAULT_A2A_CLIENT_SERVER_URL = "http://localhost:8000"
@@ -27,14 +25,12 @@ class A2AServerSettings:
         host: Bind host for uvicorn.
         port: Bind port for uvicorn.
         public_url: URL advertised by the Agent Card.
-        step_sleep_seconds: Simulated sample-agent step duration.
         log_level: Python logging level name.
     """
 
     host: str
     port: int
     public_url: str
-    step_sleep_seconds: float
     log_level: str
 
 
@@ -60,18 +56,12 @@ def load_a2a_server_settings(
         variable_name="A2A_SERVER_PORT",
     )
     public_url = source.get("A2A_SERVER_PUBLIC_URL", _default_public_url(host, port))
-    step_sleep_seconds = _parse_float(
-        source.get("AGENT_STEP_SLEEP_SECONDS"),
-        default=DEFAULT_STEP_SLEEP_SECONDS,
-        variable_name="AGENT_STEP_SLEEP_SECONDS",
-    )
     log_level = source.get("AGENT_LOG_LEVEL", DEFAULT_AGENT_LOG_LEVEL).upper()
 
     return A2AServerSettings(
         host=host,
         port=port,
         public_url=public_url,
-        step_sleep_seconds=step_sleep_seconds,
         log_level=log_level,
     )
 
@@ -96,28 +86,6 @@ def _parse_int(value: str | None, default: int, variable_name: str) -> int:
         return int(value)
     except ValueError as exc:
         raise ValueError(f"{variable_name} must be an integer") from exc
-
-
-def _parse_float(value: str | None, default: float, variable_name: str) -> float:
-    """Parse a floating-point environment variable.
-
-    Args:
-        value: Raw value from the environment.
-        default: Default value used when `value` is missing.
-        variable_name: Environment variable name for error messages.
-
-    Returns:
-        Parsed float value.
-
-    Raises:
-        ValueError: If `value` is not a valid float.
-    """
-    if value is None:
-        return default
-    try:
-        return float(value)
-    except ValueError as exc:
-        raise ValueError(f"{variable_name} must be a float") from exc
 
 
 def _default_public_url(host: str, port: int) -> str:

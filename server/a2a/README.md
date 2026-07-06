@@ -272,13 +272,18 @@ The local sample runner supports these environment variables:
 A2A_SERVER_HOST              Bind host. Defaults to 0.0.0.0.
 A2A_SERVER_PORT              Bind port. Defaults to 8000.
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
-AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```
 
+The sample agent plug point supports this separate environment variable:
+
+```text
+AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
+```
+
 The server variables are consumed by `sample_a2a_server.py`. The sample-agent
-variable `AGENT_STEP_SLEEP_SECONDS` is consumed by `sample_agent_definition.py`.
-None of them are consumed by the reusable `a2a_server.py` wrapper.
+variable is consumed by `sample_agent_definition.py`. None of them are consumed
+by the reusable `a2a_server.py` wrapper.
 
 Example with a custom port:
 

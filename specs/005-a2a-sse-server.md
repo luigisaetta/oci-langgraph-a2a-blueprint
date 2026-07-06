@@ -125,11 +125,11 @@ The server must support:
 * `A2A_SERVER_HOST`, default `0.0.0.0`;
 * `A2A_SERVER_PORT`, default `8000`;
 * `A2A_SERVER_PUBLIC_URL`, default derived from host and port;
-* `AGENT_STEP_SLEEP_SECONDS`, default `1.0`;
 * `AGENT_LOG_LEVEL`, default `INFO`.
 
-`AGENT_STEP_SLEEP_SECONDS` applies only to the default sample agent factory.
-Custom agent factories may ignore it and use their own configuration.
+The sample agent definition, not the server configuration, may support
+`AGENT_STEP_SLEEP_SECONDS`, default `1.0`. Custom agent definitions may ignore
+it and use their own configuration.
 
 ## Acceptance Criteria
 

@@ -38,12 +38,11 @@ The local server configuration supports:
 A2A_SERVER_HOST              Bind host. Defaults to 0.0.0.0.
 A2A_SERVER_PORT              Bind port. Defaults to 8000.
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
-AGENT_STEP_SLEEP_SECONDS     Simulated duration for the sample agent. Defaults to 1.0.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```
 
-`AGENT_STEP_SLEEP_SECONDS` is a sample-agent setting. A custom injected agent
-factory may ignore it and use its own configuration.
+`AGENT_STEP_SLEEP_SECONDS` is a sample-agent setting and must not be part of the
+local server settings object.
 
 ## Acceptance Criteria
 
@@ -52,5 +51,5 @@ This specification is accepted when:
 * server configuration is loaded through a dedicated module;
 * `a2a_server.py` no longer parses environment variables directly;
 * defaults match the existing local server behaviour;
-* invalid port and sleep values raise clear errors;
+* invalid port values raise clear errors;
 * tests cover defaults, explicit overrides, derived public URL, and validation.

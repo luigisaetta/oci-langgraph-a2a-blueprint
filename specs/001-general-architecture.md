@@ -173,13 +173,17 @@ The implementation must avoid printing directly to stdout except in command-line
 
 ## Configuration
 
-The sleep duration must be configurable.
+The sleep duration must be configurable as a sample-agent setting, not as an
+A2A server setting.
 
 The local implementation may use a simple configuration mechanism, but deployment-oriented specs must define the complete environment variable set. No secrets or OCI-specific identifiers are required for the bare agent.
 
-Candidate configuration values:
+Candidate sample-agent configuration values:
 
 * `AGENT_STEP_SLEEP_SECONDS`: simulated work duration for each step.
+
+Candidate local runtime values:
+
 * `AGENT_LOG_LEVEL`: logging level for local runs.
 
 ## Non-Goals
