@@ -20,34 +20,62 @@ The `POST /message:stream` endpoint returns Server-Sent Events with
 
 ## How the Wrapper Works
 
-The A2A server is intentionally split into three small files:
+The A2A integration is intentionally split into four small files:
 
 ```text
 src/oci_langgraph_a2a_blueprint/a2a_card.py
 src/oci_langgraph_a2a_blueprint/a2a_executor.py
 src/oci_langgraph_a2a_blueprint/a2a_server.py
+src/oci_langgraph_a2a_blueprint/sample_a2a_server.py
 ```
 
 `a2a_card.py` describes the agent to A2A clients. It builds the public Agent
 Card with protocol version `1.0`, the HTTP+JSON interface, streaming capability,
 text input/output modes, and the sample LangGraph skill.
 
-`a2a_server.py` wires the A2A SDK to Starlette. It receives an `agent_factory`,
-creates the Agent Card, registers `LangGraphAgentExecutor` as the protocol
-adapter, uses the SDK `DefaultRequestHandler`, and exposes only the Agent Card
-route plus the REST streaming route.
+`a2a_server.py` is the reusable A2A server wrapper. It wires the A2A SDK to
+Starlette. It receives an `agent_factory`, creates the Agent Card, registers
+`LangGraphAgentExecutor` as the protocol adapter, uses the SDK
+`DefaultRequestHandler`, and exposes only the Agent Card route plus the REST
+streaming route.
+
+It does not know about the sample agent's sleep setting, local environment
+variables, or `uvicorn`.
 
 ```python
-resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
-request_handler = DefaultRequestHandler(
-    agent_executor=LangGraphAgentExecutor(agent_factory=agent_factory),
-    task_store=InMemoryTaskStore(),
-    agent_card=resolved_agent_card,
-)
+def create_server(
+    agent_factory: AgentFactory,
+    server_url: str = DEFAULT_SERVER_URL,
+    agent_card: a2a_types.AgentCard | None = None,
+) -> Starlette:
+    resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
+    request_handler = DefaultRequestHandler(
+        agent_executor=LangGraphAgentExecutor(agent_factory=agent_factory),
+        task_store=InMemoryTaskStore(),
+        agent_card=resolved_agent_card,
+    )
 
-routes = create_agent_card_routes(resolved_agent_card)
-routes.extend(_streaming_only_routes(request_handler))
-app = Starlette(routes=routes)
+    routes = create_agent_card_routes(resolved_agent_card)
+    routes.extend(_streaming_only_routes(request_handler))
+    return Starlette(routes=routes)
+```
+
+`sample_a2a_server.py` is only the local sample entry point behind the
+`a2a-langgraph-server` command. It reads local settings, creates the sample agent
+factory, and then calls the generic `create_server()`.
+
+```python
+settings = load_a2a_server_settings()
+agent_factory = create_default_agent_factory(settings.step_sleep_seconds)
+
+uvicorn.run(
+    create_server(
+        agent_factory=agent_factory,
+        server_url=settings.public_url,
+    ),
+    host=settings.host,
+    port=settings.port,
+)
 ```
 
 `a2a_executor.py` is the actual bridge between A2A and LangGraph. It implements
@@ -91,9 +119,9 @@ SDK requires task-mode streams to start with a `Task` before status or artifact
 updates are emitted.
 
 The reusable server wrapper depends on an `agent_factory`, not on sample-agent
-settings. The default command-line entry point lives in `sample_a2a_server.py`.
-It reads `AGENT_STEP_SLEEP_SECONDS` only to build the sample agent factory before
-the server is created.
+settings. The default command-line entry point lives in `sample_a2a_server.py`
+and reads `AGENT_STEP_SLEEP_SECONDS` only to build the sample agent factory
+before the server is created.
 
 ## Adapting This Server to Another LangGraph Agent
 
@@ -228,15 +256,18 @@ The server listens on `0.0.0.0:8000` by default and advertises
 
 ## Configuration
 
-The local server supports these environment variables:
+The local sample runner supports these environment variables:
 
 ```text
 A2A_SERVER_HOST              Bind host. Defaults to 0.0.0.0.
 A2A_SERVER_PORT              Bind port. Defaults to 8000.
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
-AGENT_STEP_SLEEP_SECONDS     Simulated duration for each LangGraph step. Defaults to 1.0.
+AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```
+
+These variables are consumed by `sample_a2a_server.py`, not by the reusable
+`a2a_server.py` wrapper.
 
 Example with a custom port:
 
