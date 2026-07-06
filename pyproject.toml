@@ -9,7 +9,7 @@ description = "Blueprint for deploying a LangGraph agent on OCI as an A2A-compat
 requires-python = ">=3.11"
 
 [project.scripts]
-a2a-langgraph-server = "oci_langgraph_a2a_blueprint.a2a_server:main"
+a2a-langgraph-server = "oci_langgraph_a2a_blueprint.sample_a2a_server:main"
 a2a-stream-client = "oci_langgraph_a2a_blueprint.clients.a2a_stream_client:main"
 direct-agent-cli = "oci_langgraph_a2a_blueprint.clients.direct_agent_cli:main"
 

@@ -32,16 +32,15 @@ src/oci_langgraph_a2a_blueprint/a2a_server.py
 Card with protocol version `1.0`, the HTTP+JSON interface, streaming capability,
 text input/output modes, and the sample LangGraph skill.
 
-`a2a_server.py` wires the A2A SDK to Starlette. It creates the Agent Card,
-registers `LangGraphAgentExecutor` as the protocol adapter, uses the SDK
-`DefaultRequestHandler`, and exposes only the Agent Card route plus the REST
-streaming route.
+`a2a_server.py` wires the A2A SDK to Starlette. It receives an `agent_factory`,
+creates the Agent Card, registers `LangGraphAgentExecutor` as the protocol
+adapter, uses the SDK `DefaultRequestHandler`, and exposes only the Agent Card
+route plus the REST streaming route.
 
 ```python
 resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
-resolved_agent_factory = agent_factory or create_default_agent_factory()
 request_handler = DefaultRequestHandler(
-    agent_executor=LangGraphAgentExecutor(agent_factory=resolved_agent_factory),
+    agent_executor=LangGraphAgentExecutor(agent_factory=agent_factory),
     task_store=InMemoryTaskStore(),
     agent_card=resolved_agent_card,
 )
@@ -92,9 +91,9 @@ SDK requires task-mode streams to start with a `Task` before status or artifact
 updates are emitted.
 
 The reusable server wrapper depends on an `agent_factory`, not on sample-agent
-settings. The default command-line entry point still reads
-`AGENT_STEP_SLEEP_SECONDS`, but only to build the sample agent factory before the
-server is created.
+settings. The default command-line entry point lives in `sample_a2a_server.py`.
+It reads `AGENT_STEP_SLEEP_SECONDS` only to build the sample agent factory before
+the server is created.
 
 ## Adapting This Server to Another LangGraph Agent
 
@@ -131,8 +130,8 @@ def create_my_agent():
 
 
 app = create_server(
-    server_url="http://localhost:8000",
     agent_factory=create_my_agent,
+    server_url="http://localhost:8000",
 )
 ```
 

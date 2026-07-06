@@ -17,3 +17,4 @@
 * Added the A2A streaming Python CLI client, documentation, and tests.
 * Updated the main README with the current feature list and quickstart.
 * Renamed the reusable A2A server factory to `create_server` and removed sample-agent sleep settings from its public API.
+* Moved the local sample A2A server entry point out of the reusable server factory module.

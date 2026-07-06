@@ -86,15 +86,15 @@ def test_create_server_signature_has_only_server_concerns() -> None:
     """Verify reusable server creation does not expose sample-agent settings."""
     parameters = inspect.signature(create_server).parameters
 
-    assert list(parameters) == ["server_url", "agent_factory", "agent_card"]
+    assert list(parameters) == ["agent_factory", "server_url", "agent_card"]
     assert "step_sleep_seconds" not in parameters
 
 
 def test_agent_card_endpoint_returns_json() -> None:
     """Verify Agent Card discovery returns the expected public metadata."""
     app = create_server(
-        server_url="http://testserver",
         agent_factory=create_default_agent_factory(0),
+        server_url="http://testserver",
     )
 
     with TestClient(app) as client:
@@ -110,8 +110,8 @@ def test_agent_card_endpoint_returns_json() -> None:
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
     app = create_server(
-        server_url="http://testserver",
         agent_factory=create_default_agent_factory(0),
+        server_url="http://testserver",
     )
     payload = {
         "message": {
@@ -146,8 +146,8 @@ def test_message_stream_returns_sse_progress_and_completion() -> None:
 def test_message_stream_accepts_custom_agent_factory() -> None:
     """Verify the server can wrap another streaming agent via factory injection."""
     app = create_server(
-        server_url="http://testserver",
         agent_factory=CustomStreamingAgent,
+        server_url="http://testserver",
     )
     payload = {
         "message": {
