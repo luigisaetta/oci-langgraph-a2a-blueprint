@@ -18,7 +18,9 @@ The blueprint will show how to connect the key pieces:
 
 ## Current Implementation
 
-The repository currently includes the first bare LangGraph agent implementation. It executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
+The repository currently includes the first bare LangGraph agent implementation and the first A2A HTTP/SSE wrapper.
+
+The bare agent executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
 
 ```python
 from oci_langgraph_a2a_blueprint import BareLangGraphAgent
@@ -26,6 +28,32 @@ from oci_langgraph_a2a_blueprint import BareLangGraphAgent
 agent = BareLangGraphAgent(step_sleep_seconds=0)
 result = agent.invoke("hello")
 print(result["final_output"])
+```
+
+The A2A server exposes:
+
+- `GET /.well-known/agent-card.json`
+- `POST /message:stream`
+
+It intentionally focuses on the A2A 1.0 HTTP+JSON/REST streaming path with Server-Sent Events.
+See [server/a2a/README.md](server/a2a/README.md) for detailed local run instructions.
+
+Start the local server:
+
+```bash
+conda activate oci-langgraph-a2a-blueprint
+python -m pip install --no-deps -e .
+AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
+```
+
+Send a streaming request:
+
+```bash
+curl -N \
+  -H "Content-Type: application/a2a+json" \
+  -H "A2A-Version: 1.0" \
+  -d '{"message":{"messageId":"message-1","role":"ROLE_USER","parts":[{"text":"hello"}]},"configuration":{"acceptedOutputModes":["text/plain"]}}' \
+  http://localhost:8000/message:stream
 ```
 
 The project follows a strict spec-driven development workflow. Every meaningful feature starts with a specification in `specs/`, and implementation must stay aligned with the approved behavior. This keeps the repository useful as both working code and a reference architecture for building interoperable agent services on OCI.

@@ -9,3 +9,5 @@
 * Refined the bare agent implementation so `step1`, `step2`, and `step3` are separate human-readable Runnable classes.
 * Simplified the step implementation to extend LangChain `Runnable` directly and implement `invoke()` without `RunnableLambda`.
 * Added the direct Python CLI client specification, implementation, README, and tests.
+* Added the first A2A HTTP/SSE server wrapper with Agent Card discovery and streaming execution.
+* Added local A2A server run documentation.
