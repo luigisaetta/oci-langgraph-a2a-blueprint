@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Reusable A2A AgentExecutor adapter for streaming LangGraph agents.
+Agent customization: Do not modify unless the A2A event mapping changes.
 """
 
 from __future__ import annotations

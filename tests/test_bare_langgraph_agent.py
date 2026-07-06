@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Unit tests for the bare LangGraph agent implementation.
+Agent customization: Update when the sample bare agent behavior changes.
 """
 
 from __future__ import annotations

@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Unit tests for the direct bare-agent command-line client.
+Agent customization: Update only if the direct sample-agent demo changes.
 """
 
 from __future__ import annotations

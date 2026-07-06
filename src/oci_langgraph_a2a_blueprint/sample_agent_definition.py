@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Sample LangGraph agent definition used by the local A2A runner.
+Agent customization: Modify this file to plug in a different agent.
 """
 
 from __future__ import annotations

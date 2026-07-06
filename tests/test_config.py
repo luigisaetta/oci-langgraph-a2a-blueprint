@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Unit tests for runtime configuration helpers.
+Agent customization: Update only for server or client configuration changes.
 """
 
 from __future__ import annotations

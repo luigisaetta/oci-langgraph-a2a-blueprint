@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: State and event models used by the bare LangGraph agent.
+Agent customization: Modify only if the custom agent changes state or event shape.
 """
 
 from __future__ import annotations

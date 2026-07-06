@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Unit tests for the A2A HTTP/SSE server wrapper.
+Agent customization: Update when the A2A wrapper contract changes.
 """
 
 from __future__ import annotations

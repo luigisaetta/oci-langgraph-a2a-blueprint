@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: LangChain Runnable step definitions for the bare LangGraph agent.
+Agent customization: Modify only when changing the sample step workflow.
 """
 
 # pylint: disable=redefined-builtin

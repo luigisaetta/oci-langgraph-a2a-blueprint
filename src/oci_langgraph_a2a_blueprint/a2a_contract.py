@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Reusable A2A streaming agent contracts.
+Agent customization: Do not modify unless the shared agent contract changes.
 """
 
 from __future__ import annotations

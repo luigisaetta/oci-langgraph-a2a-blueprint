@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Bare LangGraph agent implementation for the OCI A2A blueprint.
+Agent customization: Modify only when changing the sample bare agent itself.
 """
 
 from __future__ import annotations

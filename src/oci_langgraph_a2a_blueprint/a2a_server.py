@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: A2A HTTP/SSE server factory for the OCI LangGraph A2A blueprint.
+Agent customization: Do not modify for normal agent replacement.
 """
 
 from __future__ import annotations

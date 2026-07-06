@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Command-line client that invokes the bare LangGraph agent directly.
+Agent customization: Modify only if the direct sample-agent demo changes.
 """
 
 from __future__ import annotations

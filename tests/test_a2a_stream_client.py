@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Unit tests for the A2A HTTP/SSE command-line client.
+Agent customization: Update only if the A2A client behavior changes.
 """
 
 from __future__ import annotations

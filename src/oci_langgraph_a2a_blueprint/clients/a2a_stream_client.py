@@ -3,6 +3,7 @@ Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
 Description: Command-line client for A2A HTTP/SSE streaming execution.
+Agent customization: Do not modify unless the client protocol usage changes.
 """
 
 from __future__ import annotations
