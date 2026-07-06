@@ -19,6 +19,7 @@ from oci_langgraph_a2a_blueprint.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
 )
+from oci_langgraph_a2a_blueprint.parse_utils import parse_float
 
 A2A_PROTOCOL_VERSION = "1.0"
 DEFAULT_SERVER_URL = "http://localhost:8000"
@@ -83,30 +84,12 @@ def load_agent_settings(
     """
     source = environ or os.environ
     return AgentSettings(
-        step_sleep_seconds=_parse_agent_sleep_seconds(
-            source.get(AGENT_STEP_SLEEP_SECONDS_ENV)
+        step_sleep_seconds=parse_float(
+            source.get(AGENT_STEP_SLEEP_SECONDS_ENV),
+            default=DEFAULT_STEP_SLEEP_SECONDS,
+            variable_name=AGENT_STEP_SLEEP_SECONDS_ENV,
         )
     )
-
-
-def _parse_agent_sleep_seconds(value: str | None) -> float:
-    """Parse the agent sleep duration.
-
-    Args:
-        value: Raw value from the environment.
-
-    Returns:
-        Parsed sleep duration.
-
-    Raises:
-        ValueError: If `value` is not a valid float.
-    """
-    if value is None:
-        return DEFAULT_STEP_SLEEP_SECONDS
-    try:
-        return float(value)
-    except ValueError as exc:
-        raise ValueError(f"{AGENT_STEP_SLEEP_SECONDS_ENV} must be a float") from exc
 
 
 def create_agent_card(

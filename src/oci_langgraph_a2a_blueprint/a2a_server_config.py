@@ -12,6 +12,8 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 
+from oci_langgraph_a2a_blueprint.parse_utils import parse_int
+
 DEFAULT_A2A_SERVER_HOST = "0.0.0.0"
 DEFAULT_A2A_SERVER_PORT = 8000
 DEFAULT_AGENT_LOG_LEVEL = "INFO"
@@ -50,7 +52,7 @@ def load_a2a_server_settings(
     """
     source = environ or os.environ
     host = source.get("A2A_SERVER_HOST", DEFAULT_A2A_SERVER_HOST)
-    port = _parse_int(
+    port = parse_int(
         source.get("A2A_SERVER_PORT"),
         default=DEFAULT_A2A_SERVER_PORT,
         variable_name="A2A_SERVER_PORT",
@@ -64,28 +66,6 @@ def load_a2a_server_settings(
         public_url=public_url,
         log_level=log_level,
     )
-
-
-def _parse_int(value: str | None, default: int, variable_name: str) -> int:
-    """Parse an integer environment variable.
-
-    Args:
-        value: Raw value from the environment.
-        default: Default value used when `value` is missing.
-        variable_name: Environment variable name for error messages.
-
-    Returns:
-        Parsed integer value.
-
-    Raises:
-        ValueError: If `value` is not a valid integer.
-    """
-    if value is None:
-        return default
-    try:
-        return int(value)
-    except ValueError as exc:
-        raise ValueError(f"{variable_name} must be an integer") from exc
 
 
 def _default_public_url(host: str, port: int) -> str:
