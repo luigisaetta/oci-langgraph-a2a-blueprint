@@ -70,6 +70,8 @@ def build_graph(
         ValueError: If `step_sleep_seconds` is negative.
     """
     steps = create_default_steps(step_sleep_seconds=step_sleep_seconds)
+    # here we have a list of steps
+
     builder = StateGraph(AgentState)
 
     previous_node = START

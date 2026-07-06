@@ -1,8 +1,18 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "oci-langgraph-a2a-blueprint"
 version = "0.1.0"
 description = "Blueprint for deploying a LangGraph agent on OCI as an A2A-compatible server."
 requires-python = ">=3.11"
+
+[project.scripts]
+direct-agent-cli = "oci_langgraph_a2a_blueprint.clients.direct_agent_cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

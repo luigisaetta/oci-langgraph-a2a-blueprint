@@ -8,3 +8,4 @@
 * Added the bare LangGraph agent specification, implementation, streaming API, and unit tests.
 * Refined the bare agent implementation so `step1`, `step2`, and `step3` are separate human-readable Runnable classes.
 * Simplified the step implementation to extend LangChain `Runnable` directly and implement `invoke()` without `RunnableLambda`.
+* Added the direct Python CLI client specification, implementation, README, and tests.
