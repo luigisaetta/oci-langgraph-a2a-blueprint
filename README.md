@@ -1,5 +1,10 @@
 # OCI LangGraph A2A Blueprint
 
+![Black](https://img.shields.io/badge/code%20style-black-000000.svg)
+![Pylint](https://img.shields.io/badge/lint-pylint-yellowgreen.svg)
+![Pytest](https://img.shields.io/badge/tests-pytest-blue.svg)
+![A2A](https://img.shields.io/badge/A2A-1.0%20compatible-brightgreen.svg)
+
 Build a production-oriented LangGraph agent, package it as an A2A-compatible server, and deploy it on Oracle Cloud Infrastructure.
 
 This repository is a blueprint for teams that want to move from an agent prototype to a cloud-ready service with a clear protocol boundary. The goal is not only to run a LangGraph workflow, but to expose it through a standard A2A server interface so that other agents, applications, and orchestration layers can discover it, call it, and reason about its task lifecycle.

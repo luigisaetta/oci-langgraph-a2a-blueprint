@@ -1,0 +1,22 @@
+name: oci-langgraph-a2a-blueprint
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - black
+  - pylint
+  - pytest
+  - pytest-asyncio
+  - pytest-cov
+  - pip:
+      - langgraph
+      - langchain-core
+      - pydantic
+      - typing-extensions
+      - "a2a-sdk[http-server]"
+      - uvicorn
+      - starlette
+      - httpx
+      - httpx-sse
+      - python-dotenv
