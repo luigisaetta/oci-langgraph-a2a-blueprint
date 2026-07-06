@@ -11,14 +11,15 @@ from collections.abc import AsyncIterator
 import inspect
 import json
 
+from a2a import types as a2a_types
 from starlette.testclient import TestClient
 
-from oci_langgraph_a2a_blueprint.a2a_card import (
+from oci_langgraph_a2a_blueprint.sample_agent_definition import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
-    create_agent_card,
+    create_sample_agent_card,
+    create_sample_agent_factory,
 )
-from oci_langgraph_a2a_blueprint.a2a_executor import create_default_agent_factory
 from oci_langgraph_a2a_blueprint.a2a_server import create_server
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
@@ -59,7 +60,7 @@ class CustomStreamingAgent:
 
 def test_agent_card_declares_a2a_1_streaming() -> None:
     """Verify the public Agent Card declares A2A 1.0 streaming support."""
-    card = create_agent_card(server_url="http://testserver")
+    card = create_sample_agent_card(server_url="http://testserver")
 
     assert card.name == "OCI LangGraph A2A Blueprint Agent"
     assert card.capabilities.streaming is True
@@ -74,7 +75,10 @@ def test_agent_card_declares_a2a_1_streaming() -> None:
 
 def test_app_exposes_only_agent_card_and_streaming_route() -> None:
     """Verify the first server keeps the public A2A route surface small."""
-    app = create_server(agent_factory=create_default_agent_factory(0))
+    app = create_server(
+        agent_factory=create_sample_agent_factory(0),
+        agent_card=create_sample_agent_card(),
+    )
 
     assert [route.path for route in app.routes] == [
         "/.well-known/agent-card.json",
@@ -86,15 +90,15 @@ def test_create_server_signature_has_only_server_concerns() -> None:
     """Verify reusable server creation does not expose sample-agent settings."""
     parameters = inspect.signature(create_server).parameters
 
-    assert list(parameters) == ["agent_factory", "server_url", "agent_card"]
+    assert list(parameters) == ["agent_factory", "agent_card"]
     assert "step_sleep_seconds" not in parameters
 
 
 def test_agent_card_endpoint_returns_json() -> None:
     """Verify Agent Card discovery returns the expected public metadata."""
     app = create_server(
-        agent_factory=create_default_agent_factory(0),
-        server_url="http://testserver",
+        agent_factory=create_sample_agent_factory(0),
+        agent_card=create_sample_agent_card(server_url="http://testserver"),
     )
 
     with TestClient(app) as client:
@@ -110,8 +114,8 @@ def test_agent_card_endpoint_returns_json() -> None:
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
     app = create_server(
-        agent_factory=create_default_agent_factory(0),
-        server_url="http://testserver",
+        agent_factory=create_sample_agent_factory(0),
+        agent_card=create_sample_agent_card(server_url="http://testserver"),
     )
     payload = {
         "message": {
@@ -147,7 +151,7 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
     """Verify the server can wrap another streaming agent via factory injection."""
     app = create_server(
         agent_factory=CustomStreamingAgent,
-        server_url="http://testserver",
+        agent_card=_custom_agent_card(),
     )
     payload = {
         "message": {
@@ -172,6 +176,38 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
     assert "custom step completed" in serialized_events
     assert "custom processed: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
+
+
+def _custom_agent_card() -> a2a_types.AgentCard:
+    """Create an Agent Card for the custom test agent.
+
+    Returns:
+        A2A Agent Card protobuf object.
+    """
+    return a2a_types.AgentCard(
+        name="Custom Test Agent",
+        description="Custom test streaming agent.",
+        version="0.1.0",
+        supported_interfaces=[
+            a2a_types.AgentInterface(
+                url="http://testserver",
+                protocol_binding=REST_PROTOCOL_BINDING,
+                protocol_version=A2A_PROTOCOL_VERSION,
+            )
+        ],
+        capabilities=a2a_types.AgentCapabilities(streaming=True),
+        default_input_modes=["text/plain"],
+        default_output_modes=["text/plain"],
+        skills=[
+            a2a_types.AgentSkill(
+                id="custom-test-skill",
+                name="Custom test skill",
+                description="Streams one custom step.",
+                input_modes=["text/plain"],
+                output_modes=["text/plain"],
+            )
+        ],
+    )
 
 
 def _read_sse_events(lines: list[str]) -> list[dict]:

@@ -89,17 +89,24 @@ Only text input is supported. If the extracted text is empty, the executor must
 mark the A2A task as failed.
 
 The executor must receive agent instances from an injectable factory. The
-default factory creates the sample `BareLangGraphAgent`, but customers should be
-able to pass a different factory to reuse the same A2A server wrapper with
-another LangGraph agent.
+factory is provided by an agent definition module. The reusable A2A executor
+must not import or construct the sample `BareLangGraphAgent`.
 
 The public server factory must be named `create_server`. It must require an
 `agent_factory` and may accept A2A server concerns such as `server_url` and
 `agent_card`. It must not expose or load sample-agent settings such as
 `step_sleep_seconds`.
 
-The local sample server entry point may read `AGENT_STEP_SLEEP_SECONDS`, but only
-to construct the sample agent factory before calling `create_server`.
+The sample agent definition is the plug point for replacing the blueprint agent.
+It owns:
+
+* sample agent factory creation;
+* sample Agent Card creation;
+* mapping sample settings to sample agent constructor parameters.
+
+The local sample server entry point must not know sample-agent constructor
+parameters such as `step_sleep_seconds`. Those parameters are resolved inside
+the sample agent definition.
 
 ## Event Mapping
 
@@ -136,6 +143,9 @@ This specification is accepted when:
 * `POST /message:stream` returns `text/event-stream`;
 * the server accepts a custom streaming agent factory without changing route
   setup code;
+* replacing the sample agent requires changes only in the sample agent
+  definition when the streaming contract stays the same;
+* the reusable A2A executor does not import the sample agent implementation;
 * an A2A streaming request emits `step1`, `step2`, and `step3` progress;
 * the stream emits a final text artifact;
 * the stream ends with `TASK_STATE_COMPLETED`;

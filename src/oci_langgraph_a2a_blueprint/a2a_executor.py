@@ -2,48 +2,17 @@
 Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
-Description: A2A AgentExecutor adapter for the bare LangGraph agent.
+Description: Reusable A2A AgentExecutor adapter for streaming LangGraph agents.
 """
 
 from __future__ import annotations
-
-from collections.abc import AsyncIterator, Callable
-from typing import Protocol
 
 from a2a import types as a2a_types
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
 
-from oci_langgraph_a2a_blueprint.agent import (
-    DEFAULT_STEP_SLEEP_SECONDS,
-    BareLangGraphAgent,
-)
-from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
-
-
-class StreamingAgent(Protocol):
-    """Minimal stream contract required by the A2A executor."""
-
-    def stream(self, input_text: str) -> AsyncIterator[AgentProgressEvent]:
-        """Stream agent progress events for the provided input text."""
-
-
-AgentFactory = Callable[[], StreamingAgent]
-
-
-def create_default_agent_factory(
-    step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
-) -> AgentFactory:
-    """Create the default sample LangGraph agent factory.
-
-    Args:
-        step_sleep_seconds: Simulated work duration for each sample step.
-
-    Returns:
-        Factory that creates configured sample agent instances.
-    """
-    return lambda: BareLangGraphAgent(step_sleep_seconds=step_sleep_seconds)
+from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
 
 
 class LangGraphAgentExecutor(AgentExecutor):
@@ -56,10 +25,10 @@ class LangGraphAgentExecutor(AgentExecutor):
 
     def __init__(
         self,
-        agent_factory: AgentFactory | None = None,
+        agent_factory: AgentFactory,
         final_output_key: str = "final_output",
     ) -> None:
-        self.agent_factory = agent_factory or create_default_agent_factory()
+        self.agent_factory = agent_factory
         self.final_output_key = final_output_key
 
     async def execute(
@@ -67,7 +36,7 @@ class LangGraphAgentExecutor(AgentExecutor):
         context: RequestContext,
         event_queue: EventQueue,
     ) -> None:
-        """Execute the bare LangGraph agent and publish A2A task updates.
+        """Execute the streaming LangGraph agent and publish A2A task updates.
 
         Args:
             context: A2A request context.
