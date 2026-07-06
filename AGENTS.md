@@ -48,9 +48,9 @@ When working in this repository, Codex should:
 
 ## Python environment
 
-Use the project Conda environment for local development and tests.
+Use the `oci-langgraph-a2a-blueprint` Conda environment for local development and tests.
 
-If an environment definition exists, prefer it for setup. If the environment already exists, activate it before running checks.
+If an environment definition exists, prefer it for setup. If the environment already exists, activate `oci-langgraph-a2a-blueprint` before running checks.
 
 Do not assume globally installed Python packages are available.
 
