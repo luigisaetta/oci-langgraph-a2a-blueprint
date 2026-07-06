@@ -16,6 +16,9 @@ from a2a import types as a2a_types
 
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
+A2A_PROTOCOL_VERSION = "1.0"
+REST_PROTOCOL_BINDING = "HTTP+JSON"
+
 
 class StreamingAgent(Protocol):
     """Minimal streaming contract required by the A2A executor."""

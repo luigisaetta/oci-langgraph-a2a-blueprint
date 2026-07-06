@@ -19,3 +19,4 @@
 * Renamed the reusable A2A server factory to `create_server` and removed sample-agent sleep settings from its public API.
 * Moved the local sample A2A server entry point out of the reusable server factory module.
 * Introduced an explicit sample agent definition plug point for agent factory and Agent Card replacement.
+* Moved shared A2A protocol constants and the default local server URL out of the sample agent adapter.

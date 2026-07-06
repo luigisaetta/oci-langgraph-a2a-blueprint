@@ -16,6 +16,7 @@ from oci_langgraph_a2a_blueprint.parse_utils import parse_int
 
 DEFAULT_A2A_SERVER_HOST = "0.0.0.0"
 DEFAULT_A2A_SERVER_PORT = 8080
+DEFAULT_SERVER_URL = "http://localhost:8080"
 DEFAULT_AGENT_LOG_LEVEL = "INFO"
 
 

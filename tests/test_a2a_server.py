@@ -15,15 +15,18 @@ import json
 from a2a import types as a2a_types
 from starlette.testclient import TestClient
 
-from oci_langgraph_a2a_blueprint.agent_adapter import (
+from oci_langgraph_a2a_blueprint.a2a_contract import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
+)
+from oci_langgraph_a2a_blueprint.agent_adapter import (
     create_agent_adapter,
     load_agent_settings,
     create_agent_card,
     create_agent_factory,
 )
 from oci_langgraph_a2a_blueprint.a2a_server import create_server
+from oci_langgraph_a2a_blueprint.clients.a2a_stream_client import build_stream_request
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
 
@@ -103,7 +106,7 @@ def test_agent_adapter_contract_uses_generic_function_name() -> None:
     adapter = create_agent_adapter()
     agent_card = adapter.agent_card_factory("http://testserver")
 
-    assert list(parameters) == []
+    assert not list(parameters)
     assert agent_card.supported_interfaces[0].url == "http://testserver"
     assert callable(adapter.agent_factory)
     assert callable(adapter.agent_card_factory)
@@ -132,14 +135,7 @@ def test_message_stream_returns_sse_progress_and_completion() -> None:
         agent_factory=create_agent_factory(0),
         agent_card=create_agent_card(server_url="http://testserver"),
     )
-    payload = {
-        "message": {
-            "messageId": "message-1",
-            "role": "ROLE_USER",
-            "parts": [{"text": "hello"}],
-        },
-        "configuration": {"acceptedOutputModes": ["text/plain"]},
-    }
+    payload = build_stream_request("hello", message_id="message-1")
 
     with TestClient(app) as client:
         with client.stream(
@@ -168,14 +164,7 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
         agent_factory=CustomStreamingAgent,
         agent_card=_custom_agent_card(),
     )
-    payload = {
-        "message": {
-            "messageId": "message-1",
-            "role": "ROLE_USER",
-            "parts": [{"text": "hello"}],
-        },
-        "configuration": {"acceptedOutputModes": ["text/plain"]},
-    }
+    payload = build_stream_request("hello", message_id="message-1")
 
     with TestClient(app) as client:
         with client.stream(

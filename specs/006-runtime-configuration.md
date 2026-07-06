@@ -41,6 +41,10 @@ A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 ```
 
+The default local public URL is exposed as a server configuration constant so
+Agent Card construction can use the same fallback value without hiding it in the
+sample agent adapter.
+
 `AGENT_STEP_SLEEP_SECONDS` is a sample-agent setting and must not be part of the
 local server settings object.
 

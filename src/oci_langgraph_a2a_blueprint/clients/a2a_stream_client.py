@@ -18,7 +18,8 @@ from uuid import uuid4
 import httpx
 from httpx_sse import SSEError, connect_sse
 
-A2A_PROTOCOL_VERSION = "1.0"
+from oci_langgraph_a2a_blueprint.a2a_contract import A2A_PROTOCOL_VERSION
+
 DEFAULT_A2A_CLIENT_SERVER_URL = "http://localhost:8080"
 DEFAULT_TIMEOUT_SECONDS = 30.0
 

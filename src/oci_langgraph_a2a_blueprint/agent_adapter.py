@@ -14,16 +14,19 @@ from dataclasses import dataclass
 
 from a2a import types as a2a_types
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentAdapter, AgentFactory
+from oci_langgraph_a2a_blueprint.a2a_contract import (
+    A2A_PROTOCOL_VERSION,
+    REST_PROTOCOL_BINDING,
+    AgentAdapter,
+    AgentFactory,
+)
+from oci_langgraph_a2a_blueprint.a2a_server_config import DEFAULT_SERVER_URL
 from oci_langgraph_a2a_blueprint.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
 )
 from oci_langgraph_a2a_blueprint.parse_utils import parse_float
 
-A2A_PROTOCOL_VERSION = "1.0"
-DEFAULT_SERVER_URL = "http://localhost:8080"
-REST_PROTOCOL_BINDING = "HTTP+JSON"
 AGENT_STEP_SLEEP_SECONDS_ENV = "AGENT_STEP_SLEEP_SECONDS"
 
 

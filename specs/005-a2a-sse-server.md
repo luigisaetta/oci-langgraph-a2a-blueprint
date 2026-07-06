@@ -80,6 +80,10 @@ The Agent Card must describe the sample agent as:
 The server URL must be configurable so the same code can run locally, in a
 container, or behind an OCI public endpoint.
 
+The A2A protocol version and REST protocol binding constants are shared A2A
+contract values. They must live with the reusable A2A contract definitions, not
+inside the sample agent adapter.
+
 ## Request Mapping
 
 The executor must extract user text from the incoming A2A message by using the
@@ -132,6 +136,9 @@ The server must support:
 The sample agent adapter, not the server configuration, may support
 `AGENT_STEP_SLEEP_SECONDS`, default `1.0`. Custom agent adapters may ignore
 it and use their own configuration.
+
+The fallback local server URL used when an Agent Card is created without an
+explicit URL is a server configuration default, not a sample-agent setting.
 
 ## Acceptance Criteria
 

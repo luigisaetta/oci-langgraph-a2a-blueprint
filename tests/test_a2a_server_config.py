@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import pytest
 
-from oci_langgraph_a2a_blueprint.a2a_server_config import load_a2a_server_settings
+from oci_langgraph_a2a_blueprint.a2a_server_config import (
+    DEFAULT_SERVER_URL,
+    load_a2a_server_settings,
+)
 
 
 def test_load_a2a_server_settings_defaults() -> None:
@@ -19,7 +22,7 @@ def test_load_a2a_server_settings_defaults() -> None:
 
     assert settings.host == "0.0.0.0"
     assert settings.port == 8080
-    assert settings.public_url == "http://localhost:8080"
+    assert settings.public_url == DEFAULT_SERVER_URL
     assert settings.log_level == "INFO"
 
 
