@@ -23,21 +23,18 @@ from oci_langgraph_a2a_blueprint.a2a_executor import (
     LangGraphAgentExecutor,
     create_default_agent_factory,
 )
-from oci_langgraph_a2a_blueprint.agent import DEFAULT_STEP_SLEEP_SECONDS
 from oci_langgraph_a2a_blueprint.config import load_a2a_server_settings
 
 
-def create_app(
+def create_server(
     server_url: str = DEFAULT_SERVER_URL,
-    step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
     agent_factory: AgentFactory | None = None,
     agent_card: a2a_types.AgentCard | None = None,
 ) -> Starlette:
-    """Create the A2A Starlette application.
+    """Create the A2A Starlette server application.
 
     Args:
         server_url: Public base URL advertised by the Agent Card.
-        step_sleep_seconds: Simulated work duration for the sample agent.
         agent_factory: Optional factory for a custom streaming LangGraph agent.
         agent_card: Optional Agent Card for a custom agent.
 
@@ -45,9 +42,7 @@ def create_app(
         Configured Starlette application exposing Agent Card and SSE streaming.
     """
     resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
-    resolved_agent_factory = agent_factory or create_default_agent_factory(
-        step_sleep_seconds=step_sleep_seconds,
-    )
+    resolved_agent_factory = agent_factory or create_default_agent_factory()
     request_handler = DefaultRequestHandler(
         agent_executor=LangGraphAgentExecutor(agent_factory=resolved_agent_factory),
         task_store=InMemoryTaskStore(),
@@ -65,9 +60,9 @@ def main() -> None:
 
     logging.basicConfig(level=getattr(logging, settings.log_level))
     uvicorn.run(
-        create_app(
+        create_server(
             server_url=settings.public_url,
-            step_sleep_seconds=settings.step_sleep_seconds,
+            agent_factory=create_default_agent_factory(settings.step_sleep_seconds),
         ),
         host=settings.host,
         port=settings.port,

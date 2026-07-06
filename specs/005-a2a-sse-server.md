@@ -93,6 +93,10 @@ default factory creates the sample `BareLangGraphAgent`, but customers should be
 able to pass a different factory to reuse the same A2A server wrapper with
 another LangGraph agent.
 
+The public server factory must be named `create_server`. It must accept A2A
+server concerns such as `server_url`, `agent_factory`, and `agent_card`. It must
+not expose sample-agent parameters such as `step_sleep_seconds`.
+
 ## Event Mapping
 
 For each internal bare-agent progress event:
@@ -121,6 +125,8 @@ Custom agent factories may ignore it and use their own configuration.
 This specification is accepted when:
 
 * the server can build a valid Agent Card with A2A protocol version `1.0`;
+* the reusable server factory is named `create_server`;
+* the reusable server factory does not expose sample-agent sleep settings;
 * the Starlette app exposes only Agent Card discovery and `POST /message:stream`;
 * `POST /message:stream` returns `text/event-stream`;
 * the server accepts a custom streaming agent factory without changing route

@@ -39,9 +39,7 @@ streaming route.
 
 ```python
 resolved_agent_card = agent_card or create_agent_card(server_url=server_url)
-resolved_agent_factory = agent_factory or create_default_agent_factory(
-    step_sleep_seconds=step_sleep_seconds,
-)
+resolved_agent_factory = agent_factory or create_default_agent_factory()
 request_handler = DefaultRequestHandler(
     agent_executor=LangGraphAgentExecutor(agent_factory=resolved_agent_factory),
     task_store=InMemoryTaskStore(),
@@ -93,9 +91,10 @@ The first event is an explicit A2A `Task` with `TASK_STATE_SUBMITTED`. The A2A
 SDK requires task-mode streams to start with a `Task` before status or artifact
 updates are emitted.
 
-The default sample server still supports `AGENT_STEP_SLEEP_SECONDS`, but that is
-only sample-agent configuration. The reusable wrapper depends on an
-`agent_factory`, not on the sleep parameter.
+The reusable server wrapper depends on an `agent_factory`, not on sample-agent
+settings. The default command-line entry point still reads
+`AGENT_STEP_SLEEP_SECONDS`, but only to build the sample agent factory before the
+server is created.
 
 ## Adapting This Server to Another LangGraph Agent
 
@@ -124,14 +123,14 @@ class MyLangGraphAgent:
 Then pass a factory to the server app:
 
 ```python
-from oci_langgraph_a2a_blueprint.a2a_server import create_app
+from oci_langgraph_a2a_blueprint.a2a_server import create_server
 
 
 def create_my_agent():
     return MyLangGraphAgent(...)
 
 
-app = create_app(
+app = create_server(
     server_url="http://localhost:8000",
     agent_factory=create_my_agent,
 )
@@ -176,11 +175,11 @@ Change `src/oci_langgraph_a2a_blueprint/a2a_server.py` only when:
 * authentication, tenancy, or deployment-specific middleware is introduced;
 * multiple executors or multiple agent cards are needed.
 
-For a custom Agent Card, pass `agent_card` to `create_app()` or change
+For a custom Agent Card, pass `agent_card` to `create_server()` or change
 `src/oci_langgraph_a2a_blueprint/a2a_card.py`:
 
 ```python
-app = create_app(
+app = create_server(
     agent_factory=create_my_agent,
     agent_card=my_agent_card,
 )

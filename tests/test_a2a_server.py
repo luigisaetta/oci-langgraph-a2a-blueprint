@@ -8,6 +8,7 @@ Description: Unit tests for the A2A HTTP/SSE server wrapper.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+import inspect
 import json
 
 from starlette.testclient import TestClient
@@ -17,7 +18,8 @@ from oci_langgraph_a2a_blueprint.a2a_card import (
     REST_PROTOCOL_BINDING,
     create_agent_card,
 )
-from oci_langgraph_a2a_blueprint.a2a_server import create_app
+from oci_langgraph_a2a_blueprint.a2a_executor import create_default_agent_factory
+from oci_langgraph_a2a_blueprint.a2a_server import create_server
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
 
@@ -72,7 +74,7 @@ def test_agent_card_declares_a2a_1_streaming() -> None:
 
 def test_app_exposes_only_agent_card_and_streaming_route() -> None:
     """Verify the first server keeps the public A2A route surface small."""
-    app = create_app(step_sleep_seconds=0)
+    app = create_server(agent_factory=create_default_agent_factory(0))
 
     assert [route.path for route in app.routes] == [
         "/.well-known/agent-card.json",
@@ -80,9 +82,20 @@ def test_app_exposes_only_agent_card_and_streaming_route() -> None:
     ]
 
 
+def test_create_server_signature_has_only_server_concerns() -> None:
+    """Verify reusable server creation does not expose sample-agent settings."""
+    parameters = inspect.signature(create_server).parameters
+
+    assert list(parameters) == ["server_url", "agent_factory", "agent_card"]
+    assert "step_sleep_seconds" not in parameters
+
+
 def test_agent_card_endpoint_returns_json() -> None:
     """Verify Agent Card discovery returns the expected public metadata."""
-    app = create_app(server_url="http://testserver", step_sleep_seconds=0)
+    app = create_server(
+        server_url="http://testserver",
+        agent_factory=create_default_agent_factory(0),
+    )
 
     with TestClient(app) as client:
         response = client.get("/.well-known/agent-card.json")
@@ -96,7 +109,10 @@ def test_agent_card_endpoint_returns_json() -> None:
 
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
-    app = create_app(server_url="http://testserver", step_sleep_seconds=0)
+    app = create_server(
+        server_url="http://testserver",
+        agent_factory=create_default_agent_factory(0),
+    )
     payload = {
         "message": {
             "messageId": "message-1",
@@ -129,7 +145,7 @@ def test_message_stream_returns_sse_progress_and_completion() -> None:
 
 def test_message_stream_accepts_custom_agent_factory() -> None:
     """Verify the server can wrap another streaming agent via factory injection."""
-    app = create_app(
+    app = create_server(
         server_url="http://testserver",
         agent_factory=CustomStreamingAgent,
     )
