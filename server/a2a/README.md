@@ -20,8 +20,8 @@ The `POST /message:stream` endpoint returns Server-Sent Events with
 
 ## How the Wrapper Works
 
-The A2A integration is intentionally split into reusable framework files and a
-single sample-agent plug point:
+The A2A integration is intentionally split into reusable framework files, the
+agent implementation, and a single adapter plug point:
 
 ```text
 Reusable A2A framework:
@@ -30,26 +30,28 @@ src/oci_langgraph_a2a_blueprint/a2a_executor.py
 src/oci_langgraph_a2a_blueprint/a2a_server.py
 
 Sample agent plug point:
-src/oci_langgraph_a2a_blueprint/sample_agent_definition.py
+src/oci_langgraph_a2a_blueprint/agent_adapter.py
 ```
 
 `a2a_contract.py` defines the minimal streaming contract expected by the A2A
 executor. A pluggable agent must provide an async `stream(input_text)` method
 that yields `AgentProgressEvent` objects.
 
-`sample_agent_definition.py` is the file to copy or edit when replacing the
-sample agent. It must expose `create_agent_definition()`, and it owns the agent
-factory plus Agent Card factory.
+`agent.py` and `steps.py` implement what the sample LangGraph agent does.
+
+`agent_adapter.py` is the file to copy or edit when replacing the agent. It must
+expose `create_agent_adapter()`, and it owns the agent factory plus Agent Card
+factory.
 
 ```python
-def create_agent_definition() -> AgentDefinition:
-    return AgentDefinition(
-        agent_factory=create_sample_agent_factory(),
-        agent_card_factory=create_sample_agent_card,
+def create_agent_adapter() -> AgentAdapter:
+    return AgentAdapter(
+        agent_factory=create_agent_factory(),
+        agent_card_factory=create_agent_card,
     )
 ```
 
-For the sample agent only, `create_sample_agent_factory()` reads
+For the sample agent only, `create_agent_factory()` reads
 `AGENT_STEP_SLEEP_SECONDS` and maps it to the `BareLangGraphAgent` constructor.
 That setting is not visible to `create_server()` or to the uvicorn bootstrap
 code.
@@ -82,18 +84,18 @@ def create_server(
 
 `a2a_server.py` also contains the local entry point behind the
 `a2a-langgraph-server` command. It reads local server settings, asks
-`sample_agent_definition.py` for the agent definition through the standard
-`create_agent_definition()` function, creates the Agent Card with the server
+`agent_adapter.py` for the agent adapter through the standard
+`create_agent_adapter()` function, creates the Agent Card with the server
 public URL, and then calls the generic `create_server()`.
 
 ```python
 settings = load_a2a_server_settings()
-agent_definition = create_agent_definition()
-agent_card = agent_definition.agent_card_factory(settings.public_url)
+agent_adapter = create_agent_adapter()
+agent_card = agent_adapter.agent_card_factory(settings.public_url)
 
 uvicorn.run(
     create_server(
-        agent_factory=agent_definition.agent_factory,
+        agent_factory=agent_adapter.agent_factory,
         agent_card=agent_card,
     ),
     host=settings.host,
@@ -143,15 +145,15 @@ updates are emitted.
 
 The reusable server wrapper depends only on an `agent_factory` and an
 `agent_card`. The command-line entry point lives in `a2a_server.py`; it starts
-uvicorn and asks `sample_agent_definition.py` to build the agent definition.
+uvicorn and asks `agent_adapter.py` to build the agent adapter.
 
 ## Adapting This Server to Another LangGraph Agent
 
 For another LangGraph agent, keep the A2A framework structure and replace only
-the agent definition. In the usual case, the only file to copy or edit is:
+the agent adapter. In the usual case, the only file to copy or edit is:
 
 ```text
-src/oci_langgraph_a2a_blueprint/sample_agent_definition.py
+src/oci_langgraph_a2a_blueprint/agent_adapter.py
 ```
 
 Your custom agent should provide this minimal stream method:
@@ -173,8 +175,8 @@ class MyLangGraphAgent:
         )
 ```
 
-Then change the agent definition to return your factory and Agent Card. Keep
-the function name `create_agent_definition`; this is the stable plug-in
+Then change the agent adapter to return your factory and Agent Card factory.
+Keep the function name `create_agent_adapter`; this is the stable plug-in
 contract used by the server entry point.
 
 ```python
@@ -182,8 +184,8 @@ def create_my_agent():
     return MyLangGraphAgent(...)
 
 
-def create_agent_definition() -> AgentDefinition:
-    return AgentDefinition(
+def create_agent_adapter() -> AgentAdapter:
+    return AgentAdapter(
         agent_factory=create_my_agent,
         agent_card_factory=create_my_agent_card,
     )
@@ -282,8 +284,8 @@ AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. 
 ```
 
 The server variables are consumed by `main()` in `a2a_server.py`. The
-sample-agent variable is consumed by `sample_agent_definition.py`. None of them
-are consumed by the reusable `create_server()` wrapper.
+sample-agent variable is consumed by `agent_adapter.py`. None of them are
+consumed by the reusable `create_server()` wrapper.
 
 Example with a custom port:
 

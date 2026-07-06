@@ -9,6 +9,7 @@ Agent customization: Do not modify unless the shared agent contract changes.
 from __future__ import annotations
 
 from collections.abc import AsyncIterator, Callable
+from dataclasses import dataclass
 from typing import Protocol
 
 from a2a import types as a2a_types
@@ -25,3 +26,17 @@ class StreamingAgent(Protocol):
 
 AgentFactory = Callable[[], StreamingAgent]
 AgentCardFactory = Callable[[str], a2a_types.AgentCard]
+
+
+@dataclass(frozen=True)
+class AgentAdapter:
+    """Complete adapter required to expose an agent through A2A.
+
+    Attributes:
+        agent_factory: Factory that creates streaming agent instances.
+        agent_card_factory: Factory that creates the public Agent Card for a
+            server URL.
+    """
+
+    agent_factory: AgentFactory
+    agent_card_factory: AgentCardFactory

@@ -89,7 +89,7 @@ Only text input is supported. If the extracted text is empty, the executor must
 mark the A2A task as failed.
 
 The executor must receive agent instances from an injectable factory. The
-factory is provided by an agent definition module. The reusable A2A executor
+factory is provided by an agent adapter module. The reusable A2A executor
 must not import or construct the sample `BareLangGraphAgent`.
 
 The public server factory must be named `create_server`. It must require an
@@ -97,18 +97,18 @@ The public server factory must be named `create_server`. It must require an
 `agent_card`. It must not expose or load sample-agent settings such as
 `step_sleep_seconds`.
 
-The agent definition module is the plug point for replacing the blueprint agent.
-It must expose a function named `create_agent_definition()` that returns the
-agent factory and Agent Card factory. It owns:
+The agent adapter module is the plug point for connecting an agent to the A2A
+server. It must expose a function named `create_agent_adapter()` that returns
+the agent factory and Agent Card factory. It owns:
 
 * sample agent factory creation;
 * sample Agent Card factory creation;
 * mapping sample settings to sample agent constructor parameters.
 
 The local A2A server entry point must not know sample-agent constructor
-parameters such as `step_sleep_seconds`. It must call `create_agent_definition()`
+parameters such as `step_sleep_seconds`. It must call `create_agent_adapter()`
 and then pass the server public URL only to the returned Agent Card factory.
-Agent-specific parameters are resolved inside the agent definition module.
+Agent-specific parameters are resolved inside the agent adapter module.
 
 ## Event Mapping
 
@@ -129,8 +129,8 @@ The server must support:
 * `A2A_SERVER_PUBLIC_URL`, default derived from host and port;
 * `AGENT_LOG_LEVEL`, default `INFO`.
 
-The sample agent definition, not the server configuration, may support
-`AGENT_STEP_SLEEP_SECONDS`, default `1.0`. Custom agent definitions may ignore
+The sample agent adapter, not the server configuration, may support
+`AGENT_STEP_SLEEP_SECONDS`, default `1.0`. Custom agent adapters may ignore
 it and use their own configuration.
 
 ## Acceptance Criteria
@@ -142,14 +142,14 @@ This specification is accepted when:
 * the reusable server factory requires `agent_factory`;
 * the reusable server factory does not expose sample-agent sleep settings;
 * the local server entry point is implemented in `a2a_server.py`;
-* the agent definition module exposes `create_agent_definition()` with no server
+* the agent adapter module exposes `create_agent_adapter()` with no server
   URL parameter;
 * the Starlette app exposes only Agent Card discovery and `POST /message:stream`;
 * `POST /message:stream` returns `text/event-stream`;
 * the server accepts a custom streaming agent factory without changing route
   setup code;
-* replacing the sample agent requires changes only in the sample agent
-  definition when the streaming contract stays the same;
+* replacing the sample agent requires changes only in the agent adapter when the
+  streaming contract stays the same;
 * the reusable A2A executor does not import the sample agent implementation;
 * an A2A streaming request emits `step1`, `step2`, and `step3` progress;
 * the stream emits a final text artifact;

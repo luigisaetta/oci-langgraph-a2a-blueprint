@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-06
 License: MIT
-Description: Sample LangGraph agent definition used by the local A2A runner.
+Description: Adapter that plugs the LangGraph agent into the A2A server.
 Agent customization: Modify this file to plug in a different agent.
 """
 
@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 from a2a import types as a2a_types
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentCardFactory, AgentFactory
+from oci_langgraph_a2a_blueprint.a2a_contract import AgentAdapter, AgentFactory
 from oci_langgraph_a2a_blueprint.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
@@ -23,88 +23,74 @@ from oci_langgraph_a2a_blueprint.agent import (
 A2A_PROTOCOL_VERSION = "1.0"
 DEFAULT_SERVER_URL = "http://localhost:8000"
 REST_PROTOCOL_BINDING = "HTTP+JSON"
-SAMPLE_AGENT_STEP_SLEEP_SECONDS_ENV = "AGENT_STEP_SLEEP_SECONDS"
+AGENT_STEP_SLEEP_SECONDS_ENV = "AGENT_STEP_SLEEP_SECONDS"
 
 
-@dataclass(frozen=True)
-class AgentDefinition:
-    """Complete definition required to expose an agent through A2A.
-
-    Attributes:
-        agent_factory: Factory that creates streaming agent instances.
-        agent_card_factory: Factory that creates the public Agent Card for a
-            server URL.
-    """
-
-    agent_factory: AgentFactory
-    agent_card_factory: AgentCardFactory
-
-
-def create_agent_definition() -> AgentDefinition:
-    """Create the LangGraph agent definition exposed by the A2A server.
+def create_agent_adapter() -> AgentAdapter:
+    """Create the adapter used by the A2A server to expose the agent.
 
     Returns:
-        Agent definition containing the agent factory and Agent Card factory.
+        Agent adapter containing the agent factory and Agent Card factory.
     """
-    return AgentDefinition(
-        agent_factory=create_sample_agent_factory(),
-        agent_card_factory=create_sample_agent_card,
+    return AgentAdapter(
+        agent_factory=create_agent_factory(),
+        agent_card_factory=create_agent_card,
     )
 
 
-def create_sample_agent_factory(
+def create_agent_factory(
     step_sleep_seconds: float | None = None,
 ) -> AgentFactory:
-    """Create the sample LangGraph agent factory.
+    """Create the LangGraph agent factory.
 
     Args:
-        step_sleep_seconds: Optional simulated work duration for each sample
-            step. Defaults to the local sample-agent environment setting.
+        step_sleep_seconds: Optional simulated work duration for each step.
+            Defaults to the local agent environment setting.
 
     Returns:
-        Factory that creates configured sample agent instances.
+        Factory that creates configured agent instances.
     """
     if step_sleep_seconds is None:
-        step_sleep_seconds = load_sample_agent_settings().step_sleep_seconds
+        step_sleep_seconds = load_agent_settings().step_sleep_seconds
 
     return lambda: BareLangGraphAgent(step_sleep_seconds=step_sleep_seconds)
 
 
 @dataclass(frozen=True)
-class SampleAgentSettings:
-    """Runtime settings owned by the sample LangGraph agent.
+class AgentSettings:
+    """Runtime settings owned by the LangGraph agent.
 
     Attributes:
-        step_sleep_seconds: Simulated work duration for each sample step.
+        step_sleep_seconds: Simulated work duration for each step.
     """
 
     step_sleep_seconds: float
 
 
-def load_sample_agent_settings(
+def load_agent_settings(
     environ: Mapping[str, str] | None = None,
-) -> SampleAgentSettings:
-    """Load sample-agent settings from environment variables.
+) -> AgentSettings:
+    """Load agent settings from environment variables.
 
     Args:
         environ: Optional environment mapping. Defaults to `os.environ`.
 
     Returns:
-        Parsed sample-agent settings.
+        Parsed agent settings.
 
     Raises:
-        ValueError: If the sample-agent sleep setting is invalid.
+        ValueError: If the agent sleep setting is invalid.
     """
     source = environ or os.environ
-    return SampleAgentSettings(
-        step_sleep_seconds=_parse_sample_agent_sleep_seconds(
-            source.get(SAMPLE_AGENT_STEP_SLEEP_SECONDS_ENV)
+    return AgentSettings(
+        step_sleep_seconds=_parse_agent_sleep_seconds(
+            source.get(AGENT_STEP_SLEEP_SECONDS_ENV)
         )
     )
 
 
-def _parse_sample_agent_sleep_seconds(value: str | None) -> float:
-    """Parse the sample-agent sleep duration.
+def _parse_agent_sleep_seconds(value: str | None) -> float:
+    """Parse the agent sleep duration.
 
     Args:
         value: Raw value from the environment.
@@ -120,15 +106,13 @@ def _parse_sample_agent_sleep_seconds(value: str | None) -> float:
     try:
         return float(value)
     except ValueError as exc:
-        raise ValueError(
-            f"{SAMPLE_AGENT_STEP_SLEEP_SECONDS_ENV} must be a float"
-        ) from exc
+        raise ValueError(f"{AGENT_STEP_SLEEP_SECONDS_ENV} must be a float") from exc
 
 
-def create_sample_agent_card(
+def create_agent_card(
     server_url: str = DEFAULT_SERVER_URL,
 ) -> a2a_types.AgentCard:
-    """Create the public A2A Agent Card for the sample agent.
+    """Create the public A2A Agent Card for the agent.
 
     Args:
         server_url: Public base URL where this A2A server is reachable.

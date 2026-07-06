@@ -21,9 +21,7 @@ import uvicorn
 from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
 from oci_langgraph_a2a_blueprint.a2a_executor import LangGraphAgentExecutor
 from oci_langgraph_a2a_blueprint.config import load_a2a_server_settings
-from oci_langgraph_a2a_blueprint.sample_agent_definition import (
-    create_agent_definition,
-)
+from oci_langgraph_a2a_blueprint.agent_adapter import create_agent_adapter
 
 
 def create_server(
@@ -69,13 +67,13 @@ def _streaming_only_routes(request_handler: DefaultRequestHandler) -> list:
 def main() -> None:
     """Run the local A2A server with uvicorn."""
     settings = load_a2a_server_settings()
-    agent_definition = create_agent_definition()
-    agent_card = agent_definition.agent_card_factory(settings.public_url)
+    agent_adapter = create_agent_adapter()
+    agent_card = agent_adapter.agent_card_factory(settings.public_url)
 
     logging.basicConfig(level=getattr(logging, settings.log_level))
     uvicorn.run(
         create_server(
-            agent_factory=agent_definition.agent_factory,
+            agent_factory=agent_adapter.agent_factory,
             agent_card=agent_card,
         ),
         host=settings.host,

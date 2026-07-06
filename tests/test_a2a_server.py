@@ -15,13 +15,13 @@ import json
 from a2a import types as a2a_types
 from starlette.testclient import TestClient
 
-from oci_langgraph_a2a_blueprint.sample_agent_definition import (
+from oci_langgraph_a2a_blueprint.agent_adapter import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
-    create_agent_definition,
-    load_sample_agent_settings,
-    create_sample_agent_card,
-    create_sample_agent_factory,
+    create_agent_adapter,
+    load_agent_settings,
+    create_agent_card,
+    create_agent_factory,
 )
 from oci_langgraph_a2a_blueprint.a2a_server import create_server
 from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
@@ -63,7 +63,7 @@ class CustomStreamingAgent:
 
 def test_agent_card_declares_a2a_1_streaming() -> None:
     """Verify the public Agent Card declares A2A 1.0 streaming support."""
-    card = create_sample_agent_card(server_url="http://testserver")
+    card = create_agent_card(server_url="http://testserver")
 
     assert card.name == "OCI LangGraph A2A Blueprint Agent"
     assert card.capabilities.streaming is True
@@ -79,8 +79,8 @@ def test_agent_card_declares_a2a_1_streaming() -> None:
 def test_app_exposes_only_agent_card_and_streaming_route() -> None:
     """Verify the first server keeps the public A2A route surface small."""
     app = create_server(
-        agent_factory=create_sample_agent_factory(0),
-        agent_card=create_sample_agent_card(),
+        agent_factory=create_agent_factory(0),
+        agent_card=create_agent_card(),
     )
 
     assert [route.path for route in app.routes] == [
@@ -97,23 +97,23 @@ def test_create_server_signature_has_only_server_concerns() -> None:
     assert "step_sleep_seconds" not in parameters
 
 
-def test_agent_definition_contract_uses_generic_function_name() -> None:
-    """Verify the server bootstrap can load the standard agent definition."""
-    parameters = inspect.signature(create_agent_definition).parameters
-    definition = create_agent_definition()
-    agent_card = definition.agent_card_factory("http://testserver")
+def test_agent_adapter_contract_uses_generic_function_name() -> None:
+    """Verify the server bootstrap can load the standard agent adapter."""
+    parameters = inspect.signature(create_agent_adapter).parameters
+    adapter = create_agent_adapter()
+    agent_card = adapter.agent_card_factory("http://testserver")
 
     assert list(parameters) == []
     assert agent_card.supported_interfaces[0].url == "http://testserver"
-    assert callable(definition.agent_factory)
-    assert callable(definition.agent_card_factory)
+    assert callable(adapter.agent_factory)
+    assert callable(adapter.agent_card_factory)
 
 
 def test_agent_card_endpoint_returns_json() -> None:
     """Verify Agent Card discovery returns the expected public metadata."""
     app = create_server(
-        agent_factory=create_sample_agent_factory(0),
-        agent_card=create_sample_agent_card(server_url="http://testserver"),
+        agent_factory=create_agent_factory(0),
+        agent_card=create_agent_card(server_url="http://testserver"),
     )
 
     with TestClient(app) as client:
@@ -129,8 +129,8 @@ def test_agent_card_endpoint_returns_json() -> None:
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
     app = create_server(
-        agent_factory=create_sample_agent_factory(0),
-        agent_card=create_sample_agent_card(server_url="http://testserver"),
+        agent_factory=create_agent_factory(0),
+        agent_card=create_agent_card(server_url="http://testserver"),
     )
     payload = {
         "message": {
@@ -195,7 +195,7 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
 
 def test_sample_agent_settings_read_agent_sleep_value() -> None:
     """Verify sample-agent sleep configuration is owned by the agent plug point."""
-    settings = load_sample_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "0.25"})
+    settings = load_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "0.25"})
 
     assert settings.step_sleep_seconds == 0.25
 
@@ -203,7 +203,7 @@ def test_sample_agent_settings_read_agent_sleep_value() -> None:
 def test_sample_agent_settings_reject_invalid_sleep_value() -> None:
     """Verify invalid sample-agent sleep values fail with a clear error."""
     try:
-        load_sample_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "abc"})
+        load_agent_settings({"AGENT_STEP_SLEEP_SECONDS": "abc"})
     except ValueError as exc:
         assert str(exc) == "AGENT_STEP_SLEEP_SECONDS must be a float"
     else:  # pragma: no cover
