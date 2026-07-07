@@ -83,6 +83,21 @@ class FakeLlmResponder:
         return f"llm answered: {input_text}"
 
 
+class FailingStreamingAgent:
+    """Test streaming agent that raises an unexpected runtime failure."""
+
+    async def stream(self, input_text: str) -> AsyncIterator[AgentProgressEvent]:
+        """Raise while satisfying the streaming agent protocol."""
+        if input_text:
+            raise RuntimeError("provider rejected the request")
+        yield AgentProgressEvent(
+            event_type="agent_completed",
+            source=None,
+            message="unreachable",
+            state={},
+        )
+
+
 def test_agent_card_declares_a2a_1_streaming() -> None:
     """Verify the public Agent Card declares A2A 1.0 streaming support."""
     card = create_agent_card(server_url="http://testserver")
@@ -199,6 +214,29 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
     assert "langgraph_source" in serialized_events
     assert "custom processed: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
+
+
+def test_message_stream_maps_unexpected_agent_errors_to_failed_task() -> None:
+    """Verify provider failures do not crash the SSE stream as HTTP 500."""
+    app = create_server(
+        agent_factory=FailingStreamingAgent,
+        agent_card=_custom_agent_card(),
+    )
+    payload = build_stream_request("hello", message_id="message-1")
+
+    with TestClient(app) as client:
+        with client.stream(
+            "POST",
+            "/message:stream",
+            json=payload,
+            headers={"A2A-Version": "1.0"},
+        ) as response:
+            assert response.status_code == 200
+            events = _read_sse_events(response.iter_lines())
+
+    serialized_events = json.dumps(events)
+    assert "TASK_STATE_FAILED" in serialized_events
+    assert "Agent execution failed: provider rejected the request" in serialized_events
 
 
 def test_sample_agent_settings_read_agent_sleep_value() -> None:

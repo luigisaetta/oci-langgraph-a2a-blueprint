@@ -103,7 +103,7 @@ The agent reads LLM settings from environment variables or from the ignored
 local `.env` file:
 
 ```text
-AGENT_LLM_MODEL_ID       Defaults to openai.gpt5.5.
+AGENT_LLM_MODEL_ID       Defaults to openai.gpt-5.5.
 AGENT_LLM_API_KEY        Required OCI OpenAI-compatible API key.
 AGENT_LLM_OCI_REGION     Defaults to us-chicago-1.
 AGENT_LLM_BASE_URL       Optional explicit OpenAI-compatible endpoint.

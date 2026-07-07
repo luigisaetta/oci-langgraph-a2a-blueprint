@@ -9,6 +9,7 @@
 * Added an architecture overview diagram for the framework and agent package roles.
 * Added A2A 1.0 compliance notes that clarify the implemented streaming-path scope.
 * Added an LLM-backed sample agent step using the OpenAI Responses API through an OCI OpenAI-compatible endpoint.
+* Corrected the default OCI OpenAI-compatible model id and mapped unexpected agent execution errors to failed A2A tasks instead of broken SSE streams.
 * Moved graph construction behind `BareLangGraphAgent.build_graph` and removed the module-level graph builder export.
 * Added the initial general architecture specification for the LangGraph agent blueprint and A2A server wrapper.
 * Revised the architecture specification to describe the target A2A architecture independently from delivery order.

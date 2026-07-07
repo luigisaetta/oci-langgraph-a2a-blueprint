@@ -8,12 +8,16 @@ Agent customization: Do not modify unless the A2A event mapping changes.
 
 from __future__ import annotations
 
+import logging
+
 from a2a import types as a2a_types
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
 
 from oci_langgraph_a2a_blueprint.framework.a2a_contract import AgentFactory
+
+LOGGER = logging.getLogger(__name__)
 
 
 class LangGraphAgentExecutor(AgentExecutor):
@@ -94,6 +98,11 @@ class LangGraphAgentExecutor(AgentExecutor):
             )
         except ValueError as exc:
             await updater.failed(self._new_agent_message(updater, str(exc)))
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            LOGGER.exception("Agent execution failed during A2A streaming")
+            await updater.failed(
+                self._new_agent_message(updater, f"Agent execution failed: {exc}")
+            )
 
     async def cancel(
         self,

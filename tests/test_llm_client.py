@@ -88,14 +88,14 @@ def test_responses_api_llm_client_calls_model_with_original_input() -> None:
     fake_client = FakeOpenAIClient()
     llm_client = ResponsesApiLlmClient(
         client=fake_client,
-        model_id="openai.gpt5.5",
+        model_id="openai.gpt-5.5",
     )
 
     answer = llm_client.answer("hello")
 
     assert answer == "fake llm answer"
     assert fake_client.responses.request == {
-        "model": "openai.gpt5.5",
+        "model": "openai.gpt-5.5",
         "input": "hello",
     }
 

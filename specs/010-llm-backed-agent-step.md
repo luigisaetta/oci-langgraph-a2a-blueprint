@@ -46,7 +46,7 @@ AGENT_LLM_BASE_URL       Optional explicit OpenAI-compatible endpoint.
 The default model id must be:
 
 ```text
-openai.gpt5.5
+openai.gpt-5.5
 ```
 
 If `AGENT_LLM_BASE_URL` is not provided, the integration must derive the OCI
@@ -151,4 +151,3 @@ This specification is accepted when:
 * unit tests cover the new behavior without network calls;
 * documentation and changelog are updated;
 * formatting, linting, tests, and coverage checks pass.
-

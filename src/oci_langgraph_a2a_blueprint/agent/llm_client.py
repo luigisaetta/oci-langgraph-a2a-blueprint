@@ -15,7 +15,7 @@ from typing import Any, Protocol
 
 from dotenv import load_dotenv
 
-DEFAULT_LLM_MODEL_ID = "openai.gpt5.5"
+DEFAULT_LLM_MODEL_ID = "openai.gpt-5.5"
 DEFAULT_LLM_OCI_REGION = "us-chicago-1"
 AGENT_LLM_MODEL_ID_ENV = "AGENT_LLM_MODEL_ID"
 AGENT_LLM_API_KEY_ENV = "AGENT_LLM_API_KEY"

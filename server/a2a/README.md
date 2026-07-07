@@ -294,7 +294,7 @@ The sample agent plug point supports this separate environment variable:
 
 ```text
 AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
-AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt5.5.
+AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt-5.5.
 AGENT_LLM_API_KEY            Required OCI OpenAI-compatible API key for step2.
 AGENT_LLM_OCI_REGION         OCI region used to derive the endpoint. Defaults to us-chicago-1.
 AGENT_LLM_BASE_URL           Optional explicit OpenAI-compatible endpoint.
@@ -348,7 +348,7 @@ A2A_SERVER_PORT              Host port published to the container. Defaults to 8
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card. Defaults to http://localhost:8080.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 0.
-AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt5.5.
+AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt-5.5.
 AGENT_LLM_API_KEY            Required OCI OpenAI-compatible API key for step2.
 AGENT_LLM_OCI_REGION         OCI region used to derive the endpoint. Defaults to us-chicago-1.
 AGENT_LLM_BASE_URL           Optional explicit OpenAI-compatible endpoint.
