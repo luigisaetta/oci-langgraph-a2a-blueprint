@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-07
 License: MIT
-Description: State model used by the bare LangGraph agent.
+Description: State model used by the sample LangGraph agent.
 Agent customization: Modify only if the custom agent changes state shape.
 """
 
@@ -15,12 +15,12 @@ from typing_extensions import TypedDict
 
 
 class AgentState(TypedDict, total=False):
-    """Shared state passed through the bare LangGraph agent.
+    """Shared state passed through the sample LangGraph agent.
 
     Attributes:
         input_text: Original caller input.
         state1: Output produced by step1.
-        state2: Output produced by step2.
+        state2: LLM answer produced by step2.
         state3: Output produced by step3.
         progress: Ordered progress messages collected during execution.
         final_output: Final response text produced by the graph.

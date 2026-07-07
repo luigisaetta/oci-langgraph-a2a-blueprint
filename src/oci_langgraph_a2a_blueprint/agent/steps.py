@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-07
 License: MIT
-Description: LangChain Runnable step definitions for the bare LangGraph agent.
+Description: LangChain Runnable step definitions for the sample LangGraph agent.
 Agent customization: Modify only when changing the sample step workflow.
 """
 
@@ -16,6 +16,7 @@ from typing import Any
 
 from langchain_core.runnables import Runnable, RunnableConfig
 
+from oci_langgraph_a2a_blueprint.agent.llm_client import LlmResponder
 from oci_langgraph_a2a_blueprint.agent.state import AgentState
 
 LOGGER = logging.getLogger(__name__)
@@ -104,14 +105,16 @@ class Step1(BaseStep):
 
 
 class Step2(BaseStep):
-    """Second blueprint step.
+    """Second blueprint step backed by an LLM call.
 
     Args:
         sleep_seconds: Simulated work duration.
+        llm_client: Responder that calls the configured LLM.
     """
 
-    def __init__(self, sleep_seconds: float) -> None:
+    def __init__(self, sleep_seconds: float, llm_client: LlmResponder) -> None:
         super().__init__(name="step2", sleep_seconds=sleep_seconds)
+        self.llm_client = llm_client
 
     def invoke(
         self,
@@ -119,7 +122,7 @@ class Step2(BaseStep):
         config: RunnableConfig | None = None,
         **kwargs: Any,
     ) -> AgentState:
-        """Produce `state2` from `state1`.
+        """Produce `state2` by sending the original input to the LLM.
 
         Args:
             input: Current shared agent state.
@@ -130,7 +133,7 @@ class Step2(BaseStep):
             Partial state update containing `state2` and progress.
         """
         self._simulate_work()
-        output = f"step2 processed: {input['state1']}"
+        output = self.llm_client.answer(input["input_text"])
         self._log_completed()
         return {"state2": output, "progress": ["step2 completed"]}
 
@@ -171,11 +174,15 @@ class Step3(BaseStep):
         }
 
 
-def create_default_steps(step_sleep_seconds: float = 1.0) -> list[BaseStep]:
+def create_default_steps(
+    step_sleep_seconds: float = 1.0,
+    llm_client: LlmResponder | None = None,
+) -> list[BaseStep]:
     """Create the default three-step blueprint workflow.
 
     Args:
         step_sleep_seconds: Simulated work duration for each step.
+        llm_client: Responder used by `step2` to call the configured LLM.
 
     Returns:
         Ordered runnable steps for `step1`, `step2`, and `step3`.
@@ -185,9 +192,11 @@ def create_default_steps(step_sleep_seconds: float = 1.0) -> list[BaseStep]:
     """
     if step_sleep_seconds < 0:
         raise ValueError("step_sleep_seconds must be greater than or equal to 0")
+    if llm_client is None:
+        raise ValueError("llm_client is required")
 
     return [
         Step1(step_sleep_seconds),
-        Step2(step_sleep_seconds),
+        Step2(step_sleep_seconds, llm_client=llm_client),
         Step3(step_sleep_seconds),
     ]

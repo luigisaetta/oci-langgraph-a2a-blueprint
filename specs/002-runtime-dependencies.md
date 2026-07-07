@@ -3,6 +3,9 @@
 Date: 2026-07-06
 Status: Draft
 
+Note: `specs/010-llm-backed-agent-step.md` extends this dependency baseline by
+adding the `openai` Python package for the sample agent's Responses API call.
+
 ## Purpose
 
 This specification defines the first dependency set for the `oci-langgraph-a2a-blueprint` Conda environment.
@@ -41,6 +44,7 @@ The bare agent requires:
 * `langchain-core`: provides the LangChain `Runnable` abstraction used by each step.
 * `pydantic`: validates structured configuration and event payloads where useful.
 * `typing-extensions`: supports portable typing features used by LangGraph and state schemas.
+* `openai`: OpenAI Python client used by the later LLM-backed sample agent step.
 
 ### A2A Server and Streaming
 
@@ -79,7 +83,6 @@ The following libraries are intentionally not part of the first dependency set:
 * `oci`
 * `langchain-oci`
 * `langchain-community`
-* `langchain-openai`
 * `langchain-google-genai`
 
 These dependencies must be added only when a later specification introduces real OCI service calls, OCI Generative AI integration, external tools, or real LLM providers.
@@ -103,4 +106,3 @@ This specification is accepted when:
 * optional and deferred dependencies are clearly identified;
 * the `oci-langgraph-a2a-blueprint` Conda environment can be updated from `environment.yml`;
 * imports for the core packages can be verified from the Conda environment.
-

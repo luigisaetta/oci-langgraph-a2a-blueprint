@@ -2,7 +2,7 @@
 Author: L. Saetta
 Date last modified: 2026-07-07
 License: MIT
-Description: Command-line client that invokes the bare LangGraph agent directly.
+Description: Command-line client that invokes the sample LangGraph agent directly.
 Agent customization: Modify only if the direct sample-agent demo changes.
 """
 
@@ -14,6 +14,7 @@ import logging
 import sys
 
 from oci_langgraph_a2a_blueprint import AgentProgressEvent, BareLangGraphAgent
+from oci_langgraph_a2a_blueprint.agent.llm_client import LlmResponder
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -23,11 +24,11 @@ def build_parser() -> argparse.ArgumentParser:
         Configured argument parser.
     """
     parser = argparse.ArgumentParser(
-        description="Invoke the bare LangGraph agent directly and stream progress.",
+        description="Invoke the sample LangGraph agent directly and stream progress.",
     )
     parser.add_argument(
         "input_text",
-        help="Text input passed to the bare LangGraph agent.",
+        help="Text input passed to the sample LangGraph agent.",
     )
     parser.add_argument(
         "--sleep-seconds",
@@ -53,7 +54,7 @@ def format_event(event: AgentProgressEvent) -> str:
     """Format one progress event for console output.
 
     Args:
-        event: Progress event emitted by the bare agent.
+        event: Progress event emitted by the sample agent.
 
     Returns:
         Human-readable event line.
@@ -68,19 +69,25 @@ async def run_client(
     input_text: str,
     sleep_seconds: float,
     show_state: bool = False,
+    llm_client: LlmResponder | None = None,
 ) -> int:
     """Run the direct client.
 
     Args:
-        input_text: Text input passed to the bare agent.
+        input_text: Text input passed to the sample agent.
         sleep_seconds: Simulated work duration for each step.
         show_state: Whether to print full state snapshots while streaming.
+        llm_client: Optional responder used by step2. Defaults to the
+            environment-configured Responses API client.
 
     Returns:
         Process-style exit code.
     """
     try:
-        agent = BareLangGraphAgent(step_sleep_seconds=sleep_seconds)
+        agent = BareLangGraphAgent(
+            step_sleep_seconds=sleep_seconds,
+            llm_client=llm_client,
+        )
 
         final_output = ""
         async for event in agent.stream(input_text):

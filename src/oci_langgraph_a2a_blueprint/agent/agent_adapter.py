@@ -25,6 +25,10 @@ from oci_langgraph_a2a_blueprint.agent.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
 )
+from oci_langgraph_a2a_blueprint.agent.llm_client import (
+    LlmResponder,
+    create_default_llm_client,
+)
 from oci_langgraph_a2a_blueprint.parse_utils import parse_float
 
 AGENT_STEP_SLEEP_SECONDS_ENV = "AGENT_STEP_SLEEP_SECONDS"
@@ -44,12 +48,14 @@ def create_agent_adapter() -> AgentAdapter:
 
 def create_agent_factory(
     step_sleep_seconds: float | None = None,
+    llm_client: LlmResponder | None = None,
 ) -> AgentFactory:
     """Create the LangGraph agent factory.
 
     Args:
         step_sleep_seconds: Optional simulated work duration for each step.
             Defaults to the local agent environment setting.
+        llm_client: Optional LLM responder used by tests or custom wiring.
 
     Returns:
         Factory that creates configured agent instances.
@@ -57,7 +63,10 @@ def create_agent_factory(
     if step_sleep_seconds is None:
         step_sleep_seconds = load_agent_settings().step_sleep_seconds
 
-    return lambda: BareLangGraphAgent(step_sleep_seconds=step_sleep_seconds)
+    return lambda: BareLangGraphAgent(
+        step_sleep_seconds=step_sleep_seconds,
+        llm_client=llm_client or create_default_llm_client(),
+    )
 
 
 @dataclass(frozen=True)

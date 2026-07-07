@@ -75,6 +75,14 @@ class CustomStreamingAgent:
         )
 
 
+class FakeLlmResponder:
+    """Fake LLM responder used to avoid network calls in server tests."""
+
+    def answer(self, input_text: str) -> str:
+        """Return a deterministic answer for the original input."""
+        return f"llm answered: {input_text}"
+
+
 def test_agent_card_declares_a2a_1_streaming() -> None:
     """Verify the public Agent Card declares A2A 1.0 streaming support."""
     card = create_agent_card(server_url="http://testserver")
@@ -143,7 +151,7 @@ def test_agent_card_endpoint_returns_json() -> None:
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
     app = create_server(
-        agent_factory=create_agent_factory(0),
+        agent_factory=create_agent_factory(0, llm_client=FakeLlmResponder()),
         agent_card=create_agent_card(server_url="http://testserver"),
     )
     payload = build_stream_request("hello", message_id="message-1")
@@ -163,9 +171,7 @@ def test_message_stream_returns_sse_progress_and_completion() -> None:
     assert "step1 completed" in serialized_events
     assert "step2 completed" in serialized_events
     assert "step3 completed" in serialized_events
-    assert "step3 processed: step2 processed: step1 processed: hello" in (
-        serialized_events
-    )
+    assert "step3 processed: llm answered: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
 
 

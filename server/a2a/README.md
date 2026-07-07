@@ -108,7 +108,7 @@ uvicorn.run(
 
 `a2a_executor.py` is the actual bridge between A2A and LangGraph. It implements
 the SDK `AgentExecutor` interface. The executor reads user text from the A2A
-request context, invokes the bare LangGraph agent streaming API, and maps each
+request context, invokes the sample LangGraph agent streaming API, and maps each
 internal event to A2A task events.
 
 ```python
@@ -271,6 +271,8 @@ keeps local source changes immediately visible without reinstalling dependencies
 For a fast local demo, disable the simulated step delay:
 
 ```bash
+cp env.sample .env
+# Edit .env and set AGENT_LLM_API_KEY before starting the server.
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
@@ -292,11 +294,19 @@ The sample agent plug point supports this separate environment variable:
 
 ```text
 AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
+AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt5.5.
+AGENT_LLM_API_KEY            Required OCI OpenAI-compatible API key for step2.
+AGENT_LLM_OCI_REGION         OCI region used to derive the endpoint. Defaults to us-chicago-1.
+AGENT_LLM_BASE_URL           Optional explicit OpenAI-compatible endpoint.
 ```
 
 The server variables are consumed by `main()` in `framework/a2a_server.py`. The
 sample-agent variable is consumed by `agent/agent_adapter.py`. None of them are
 consumed by the reusable `create_server()` wrapper.
+
+The repository includes `env.sample` with safe placeholders. Copy it to `.env`
+for local development. The `.env` file is ignored by Git and must not contain
+committed secrets.
 
 Example with a custom port:
 
@@ -338,6 +348,10 @@ A2A_SERVER_PORT              Host port published to the container. Defaults to 8
 A2A_SERVER_PUBLIC_URL        Public URL advertised in the Agent Card. Defaults to http://localhost:8080.
 AGENT_LOG_LEVEL              Python logging level. Defaults to INFO.
 AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 0.
+AGENT_LLM_MODEL_ID           OCI OpenAI-compatible model id. Defaults to openai.gpt5.5.
+AGENT_LLM_API_KEY            Required OCI OpenAI-compatible API key for step2.
+AGENT_LLM_OCI_REGION         OCI region used to derive the endpoint. Defaults to us-chicago-1.
+AGENT_LLM_BASE_URL           Optional explicit OpenAI-compatible endpoint.
 ```
 
 Example with a custom host port:
@@ -388,7 +402,7 @@ TASK_STATE_COMPLETED
 The final artifact contains:
 
 ```text
-step3 processed: step2 processed: step1 processed: hello
+step3 processed: <LLM answer for "hello">
 ```
 
 ## Stop the Server

@@ -13,6 +13,7 @@ dependencies = [
     "httpx-sse",
     "langchain-core",
     "langgraph",
+    "openai",
     "pydantic",
     "python-dotenv",
     "starlette",

@@ -3,6 +3,10 @@
 Date: 2026-07-06
 Status: Draft
 
+Note: The initial baseline used deterministic sample steps. The later
+`specs/010-llm-backed-agent-step.md` specification adds a real LLM call to
+`step2` while preserving the same framework and A2A boundaries.
+
 ## Purpose
 
 This specification defines a first architecture baseline for the OCI LangGraph A2A Blueprint.
@@ -183,11 +187,15 @@ The implementation must avoid printing directly to stdout except in command-line
 The sleep duration must be configurable as a sample-agent setting, not as an
 A2A server setting.
 
-The local implementation may use a simple configuration mechanism, but deployment-oriented specs must define the complete environment variable set. No secrets or OCI-specific identifiers are required for the bare agent.
+The local implementation may use a simple configuration mechanism, but deployment-oriented specs must define the complete environment variable set. Secrets must be supplied through environment variables or ignored local files.
 
 Candidate sample-agent configuration values:
 
 * `AGENT_STEP_SLEEP_SECONDS`: simulated work duration for each step.
+* `AGENT_LLM_MODEL_ID`: OCI OpenAI-compatible model id.
+* `AGENT_LLM_API_KEY`: OCI OpenAI-compatible API key.
+* `AGENT_LLM_OCI_REGION`: OCI region used to derive the inference endpoint.
+* `AGENT_LLM_BASE_URL`: optional explicit OpenAI-compatible inference endpoint.
 
 Candidate local runtime values:
 
@@ -197,8 +205,7 @@ Candidate local runtime values:
 
 This architecture specification does not require:
 
-* real OCI service integration;
-* real LLM calls;
+* broader OCI service integration beyond the OpenAI-compatible inference call;
 * tools or MCP integration;
 * authentication and authorization;
 * durable external task storage;

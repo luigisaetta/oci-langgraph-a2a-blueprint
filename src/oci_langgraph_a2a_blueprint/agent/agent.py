@@ -2,8 +2,8 @@
 Author: L. Saetta
 Date last modified: 2026-07-07
 License: MIT
-Description: Bare LangGraph agent implementation for the OCI A2A blueprint.
-Agent customization: Modify only when changing the sample bare agent itself.
+Description: Sample LangGraph agent implementation for the OCI A2A blueprint.
+Agent customization: Modify only when changing the sample agent itself.
 """
 
 from __future__ import annotations
@@ -14,6 +14,10 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
 from oci_langgraph_a2a_blueprint.framework.a2a_contract import AgentProgressEvent
+from oci_langgraph_a2a_blueprint.agent.llm_client import (
+    LlmResponder,
+    create_default_llm_client,
+)
 from oci_langgraph_a2a_blueprint.agent.state import AgentState
 from oci_langgraph_a2a_blueprint.agent.steps import BaseStep, create_default_steps
 
@@ -58,17 +62,27 @@ def _merge_state(current_state: AgentState, partial_update: AgentState) -> Agent
 
 
 class BareLangGraphAgent:
-    """Bare three-step LangGraph agent used by the blueprint.
+    """Three-step LangGraph agent used by the blueprint.
 
     Args:
         step_sleep_seconds: Simulated work duration for each step.
+        llm_client: Optional responder used by step2. Defaults to the
+            environment-configured Responses API client.
     """
 
     def __init__(
         self,
         step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
+        llm_client: LlmResponder | None = None,
     ) -> None:
-        self.steps = create_default_steps(step_sleep_seconds=step_sleep_seconds)
+        if step_sleep_seconds < 0:
+            raise ValueError("step_sleep_seconds must be greater than or equal to 0")
+
+        resolved_llm_client = llm_client or create_default_llm_client()
+        self.steps = create_default_steps(
+            step_sleep_seconds=step_sleep_seconds,
+            llm_client=resolved_llm_client,
+        )
         self.graph = self.build_graph(self.steps)
 
     def invoke(self, input_text: str) -> AgentState:

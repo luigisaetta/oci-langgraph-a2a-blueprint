@@ -3,6 +3,10 @@
 Date: 2026-07-06
 Status: Draft
 
+Note: This specification describes the first deterministic sample agent. The
+later LLM-backed `step2` behavior is specified in
+`specs/010-llm-backed-agent-step.md`.
+
 ## Purpose
 
 This specification defines the first implementation of the bare LangGraph agent described by the general architecture specification.

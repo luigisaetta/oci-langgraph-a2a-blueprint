@@ -27,6 +27,8 @@ python -m pip install --no-deps -e .
 In one terminal:
 
 ```bash
+cp env.sample .env
+# Edit .env and set AGENT_LLM_API_KEY.
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
@@ -54,7 +56,7 @@ status: TASK_STATE_WORKING - LangGraph workflow started.
 status: TASK_STATE_WORKING - step1 completed
 status: TASK_STATE_WORKING - step2 completed
 status: TASK_STATE_WORKING - step3 completed
-artifact: final_output - step3 processed: step2 processed: step1 processed: hello from A2A
+artifact: final_output - step3 processed: <LLM answer for "hello from A2A">
 status: TASK_STATE_COMPLETED - LangGraph workflow completed.
 ```
 

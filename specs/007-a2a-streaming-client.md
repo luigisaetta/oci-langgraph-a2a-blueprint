@@ -29,7 +29,7 @@ The client must:
 
 The client must not:
 
-* instantiate the bare LangGraph agent directly;
+* instantiate the sample LangGraph agent directly;
 * require OCI configuration;
 * require secrets;
 * implement a full A2A SDK client abstraction.
@@ -68,7 +68,7 @@ status: TASK_STATE_WORKING - step1 completed
 For artifact updates, the client prints:
 
 ```text
-artifact: final_output - step3 processed: step2 processed: step1 processed: hello
+artifact: final_output - step3 processed: <LLM answer for "hello">
 ```
 
 For the initial task, the client prints:

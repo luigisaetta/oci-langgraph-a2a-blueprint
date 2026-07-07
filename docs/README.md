@@ -5,6 +5,8 @@ A2A blueprint.
 
 ## Guides
 
+* [A2A 1.0 Compliance Notes](a2a-1-0-compliance.md): current compliance scope,
+  limitations, and recommended wording for the blueprint's A2A 1.0 support.
 * [How to Plug Your Own LangGraph Agent](custom-agent.md): replace the sample
   LangGraph agent while keeping the reusable A2A framework unchanged.
 

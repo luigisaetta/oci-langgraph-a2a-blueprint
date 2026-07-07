@@ -17,6 +17,14 @@ from oci_langgraph_a2a_blueprint.clients.direct_agent_cli import (
 )
 
 
+class FakeLlmResponder:
+    """Fake LLM responder used to avoid network calls in direct client tests."""
+
+    def answer(self, input_text: str) -> str:
+        """Return a deterministic answer for the original input."""
+        return f"llm answered: {input_text}"
+
+
 def test_format_event_with_source() -> None:
     """Verify formatting for a step progress event."""
     event = AgentProgressEvent(
@@ -50,6 +58,7 @@ async def test_run_client_streams_agent_events(
         input_text="hello",
         sleep_seconds=0,
         show_state=False,
+        llm_client=FakeLlmResponder(),
     )
 
     captured = capsys.readouterr()
@@ -59,7 +68,7 @@ async def test_run_client_streams_agent_events(
     assert "step_completed: step2 - step2 completed" in captured.out
     assert "step_completed: step3 - step3 completed" in captured.out
     assert "agent_completed: agent completed" in captured.out
-    assert "Final output: step3 processed:" in captured.out
+    assert "Final output: step3 processed: llm answered: hello" in captured.out
     assert captured.err == ""
 
 
@@ -72,6 +81,7 @@ async def test_run_client_reports_value_error(
         input_text=" ",
         sleep_seconds=0,
         show_state=False,
+        llm_client=FakeLlmResponder(),
     )
 
     captured = capsys.readouterr()

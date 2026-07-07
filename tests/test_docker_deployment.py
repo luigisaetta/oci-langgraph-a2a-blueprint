@@ -35,6 +35,9 @@ def test_docker_compose_defines_single_a2a_server_service() -> None:
         in compose
     )
     assert 'AGENT_STEP_SLEEP_SECONDS: "${AGENT_STEP_SLEEP_SECONDS:-0}"' in compose
+    assert 'AGENT_LLM_MODEL_ID: "${AGENT_LLM_MODEL_ID:-openai.gpt5.5}"' in compose
+    assert 'AGENT_LLM_API_KEY: "${AGENT_LLM_API_KEY:-}"' in compose
+    assert 'AGENT_LLM_OCI_REGION: "${AGENT_LLM_OCI_REGION:-us-chicago-1}"' in compose
 
 
 def test_root_server_scripts_are_executable() -> None:
@@ -63,6 +66,7 @@ def test_runtime_dependencies_are_declared_for_container_build() -> None:
         '"a2a-sdk[http-server]"',
         '"langchain-core"',
         '"langgraph"',
+        '"openai"',
         '"starlette"',
         '"uvicorn"',
     ]:

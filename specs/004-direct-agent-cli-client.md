@@ -5,9 +5,9 @@ Status: Draft
 
 ## Purpose
 
-This specification defines the first Python command-line client for the bare LangGraph agent.
+This specification defines the first Python command-line client for the sample LangGraph agent.
 
-The client invokes the agent directly, without A2A, HTTP, or SSE. Its purpose is to demonstrate the internal streaming behaviour of the bare agent before introducing the A2A server wrapper.
+The client invokes the agent directly, without A2A, HTTP, or SSE. Its purpose is to demonstrate the internal streaming behaviour of the sample agent before introducing the A2A server wrapper.
 
 ## Scope
 
@@ -27,7 +27,7 @@ The client must not:
 * expose an HTTP server;
 * use A2A SDK classes;
 * call OCI services;
-* call a real LLM;
+* call a real LLM; this is superseded for the current sample agent by `specs/010-llm-backed-agent-step.md`;
 * require secrets or configuration files.
 
 ## Command

@@ -12,6 +12,7 @@ dependencies:
   - pip:
       - langgraph
       - langchain-core
+      - openai
       - pydantic
       - typing-extensions
       - "a2a-sdk[http-server]"

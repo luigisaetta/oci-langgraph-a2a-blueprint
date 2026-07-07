@@ -21,11 +21,12 @@ The blueprint currently connects the key pieces:
 ## Features
 
 - Spec-driven development workflow with specifications under `specs/`.
-- Bare LangGraph agent with several steps (`step1`, `step2`, and `step3`) executed in sequence.
+- LangGraph agent with several steps (`step1`, `step2`, and `step3`) executed in sequence.
 - Shared typed agent state with per-step outputs and final output.
 - Each sample step implemented as a readable LangChain `Runnable`.
+- LLM-backed `step2` using the OpenAI Responses API against an OCI OpenAI-compatible endpoint.
 - Internal async streaming API for bare-agent progress events.
-- Direct Python CLI client for invoking the bare agent without A2A.
+- Direct Python CLI client for invoking the sample agent without A2A.
 - A2A `1.0` HTTP+JSON/REST server wrapper using the official A2A Python SDK.
 - Public Agent Card discovery at `/.well-known/agent-card.json`.
 - HTTP streaming endpoint at `POST /message:stream`.
@@ -34,15 +35,18 @@ The blueprint currently connects the key pieces:
 - Centralized A2A server runtime configuration for host, port, public URL, and log level.
 - Docker Compose deployment that runs the sample LangGraph agent and A2A server in one container.
 - Python A2A streaming CLI client for testing the public protocol boundary.
-- Unit tests for the bare agent, direct client, A2A server, A2A server configuration, and A2A streaming client.
+- Unit tests for the sample agent, direct client, A2A server, A2A server configuration, and A2A streaming client.
 
 ## Current Implementation
 
-The repository includes a sample bare LangGraph agent and an A2A HTTP/SSE wrapper.
+The repository includes a sample LangGraph agent and an A2A HTTP/SSE wrapper.
 
 ![OCI LangGraph A2A Blueprint architecture](images/architecture-overview.svg)
 
-The bare agent executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
+The sample agent executes three sequential LangChain `Runnable` steps, shares
+state across the graph, calls an LLM in `step2`, logs the start and completion
+of each step, and exposes both synchronous invocation and asynchronous
+streaming progress events.
 
 ```python
 from oci_langgraph_a2a_blueprint import BareLangGraphAgent
@@ -67,6 +71,8 @@ Start the local server:
 ```bash
 conda activate oci-langgraph-a2a-blueprint
 python -m pip install --no-deps -e .
+cp env.sample .env
+# Edit .env and set AGENT_LLM_API_KEY before starting the server.
 AGENT_STEP_SLEEP_SECONDS=0 a2a-langgraph-server
 ```
 
@@ -91,6 +97,16 @@ For direct in-process agent execution without A2A:
 
 ```bash
 direct-agent-cli "hello" --sleep-seconds 0
+```
+
+The agent reads LLM settings from environment variables or from the ignored
+local `.env` file:
+
+```text
+AGENT_LLM_MODEL_ID       Defaults to openai.gpt5.5.
+AGENT_LLM_API_KEY        Required OCI OpenAI-compatible API key.
+AGENT_LLM_OCI_REGION     Defaults to us-chicago-1.
+AGENT_LLM_BASE_URL       Optional explicit OpenAI-compatible endpoint.
 ```
 
 ## Docker Compose
@@ -124,6 +140,7 @@ A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
 ## Documentation
 
 - [docs/README.md](docs/README.md): documentation index.
+- [docs/a2a-1-0-compliance.md](docs/a2a-1-0-compliance.md): A2A 1.0 compliance scope and limitations.
 - [images/architecture-overview.svg](images/architecture-overview.svg): architecture overview diagram.
 - [docs/custom-agent.md](docs/custom-agent.md): guide for plugging in your own LangGraph agent.
 - [server/a2a/README.md](server/a2a/README.md): local A2A server usage and wrapper architecture.

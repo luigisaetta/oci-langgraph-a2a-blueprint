@@ -1,6 +1,6 @@
 # Direct Agent CLI Client
 
-This client invokes the bare LangGraph agent directly from the command line.
+This client invokes the sample LangGraph agent directly from the command line.
 
 It does not use A2A, HTTP, or Server-Sent Events. It is a local development client that shows the agent's internal streaming progress before the A2A server wrapper is introduced.
 
@@ -19,6 +19,14 @@ python -m pip install --no-deps -e .
 ```
 
 This makes the `src/` package importable without setting `PYTHONPATH`.
+
+Copy the sample environment file and set the LLM API key before running the
+client:
+
+```bash
+cp env.sample .env
+# Edit .env and set AGENT_LLM_API_KEY.
+```
 
 ## Basic Usage
 
@@ -49,7 +57,7 @@ step_completed: step1 - step1 completed
 step_completed: step2 - step2 completed
 step_completed: step3 - step3 completed
 agent_completed: agent completed
-Final output: step3 processed: step2 processed: step1 processed: quick demo
+Final output: step3 processed: <LLM answer for "quick demo">
 ```
 
 ## Show State Snapshots
@@ -71,7 +79,7 @@ python -m oci_langgraph_a2a_blueprint.clients.direct_agent_cli "show logs" --sle
 ## Options
 
 ```text
-input_text              Text input passed to the bare LangGraph agent.
+input_text              Text input passed to the sample LangGraph agent.
 --sleep-seconds FLOAT   Simulated work duration for each step. Defaults to 1.0.
 --log-level LEVEL       Python logging level. Defaults to WARNING.
 --show-state            Print the current state snapshot after each event.
