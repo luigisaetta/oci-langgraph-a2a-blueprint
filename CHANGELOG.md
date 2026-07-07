@@ -5,6 +5,7 @@
 * Moved the reusable agent progress event contract into the A2A framework layer and generalized event source metadata.
 * Separated reusable A2A framework modules from the replaceable sample agent package.
 * Added a documentation index and a custom LangGraph agent plug-in guide.
+* Clarified where each custom agent guide example should be placed or run.
 * Moved graph construction behind `BareLangGraphAgent.build_graph` and removed the module-level graph builder export.
 * Added the initial general architecture specification for the LangGraph agent blueprint and A2A server wrapper.
 * Revised the architecture specification to describe the target A2A architecture independently from delivery order.

@@ -6,6 +6,9 @@ place.
 
 The stable boundary is:
 
+Reference only. This is the runtime call path; do not paste it into a source
+file.
+
 ```text
 A2A client
   -> framework/a2a_server.py
@@ -21,11 +24,15 @@ For most custom agents, only files under
 
 Reusable A2A framework files live here:
 
+Reference only. These files normally stay unchanged when replacing the agent.
+
 ```text
 src/oci_langgraph_a2a_blueprint/framework/
 ```
 
 Replaceable agent files live here:
+
+Reference only. Put your custom agent implementation under this package.
 
 ```text
 src/oci_langgraph_a2a_blueprint/agent/
@@ -38,6 +45,12 @@ The framework expects the agent package to expose an adapter through
 
 Define the state your LangGraph workflow needs. Keep a `final_output` field if
 you want to reuse the existing A2A executor without changes.
+
+File to edit: `src/oci_langgraph_a2a_blueprint/agent/state.py`.
+
+Replace the sample `AgentState` definition with your custom state, or keep the
+name `AgentState` and adapt the fields if you want fewer import changes across
+the agent package.
 
 ```python
 from typing import TypedDict
@@ -56,6 +69,13 @@ class CustomAgentState(TypedDict, total=False):
 
 Build a LangGraph graph that reads and writes your custom state. The example
 below keeps two simple nodes so the shape is easy to see.
+
+File to edit: `src/oci_langgraph_a2a_blueprint/agent/agent.py`.
+
+Replace the sample `BareLangGraphAgent.build_graph()` logic with your own graph
+builder, or move the node functions to
+`src/oci_langgraph_a2a_blueprint/agent/steps.py` if they are large enough to
+deserve a separate module.
 
 ```python
 from langgraph.graph import END, START, StateGraph
@@ -99,6 +119,12 @@ def build_custom_graph():
 The A2A executor calls `agent.stream(input_text)` and expects
 `AgentProgressEvent` objects. The event contract lives in
 `framework/a2a_contract.py`.
+
+File to edit: `src/oci_langgraph_a2a_blueprint/agent/agent.py`.
+
+Replace or adapt the sample `BareLangGraphAgent.stream()` method. Keep the
+method name `stream` and the `input_text: str` argument so the reusable A2A
+executor can call the agent without changes.
 
 ```python
 from collections.abc import AsyncIterator
@@ -160,6 +186,12 @@ The default executor reads the final response from `state["final_output"]`.
 
 Edit `src/oci_langgraph_a2a_blueprint/agent/agent_adapter.py` so it returns
 your custom agent factory and Agent Card factory.
+
+File to edit: `src/oci_langgraph_a2a_blueprint/agent/agent_adapter.py`.
+
+Replace the sample factory and `create_agent_card()` implementation with your
+custom versions. Keep `create_agent_adapter()` because
+`framework/a2a_server.py` imports that function as the stable plug point.
 
 ```python
 from a2a import types as a2a_types
@@ -236,6 +268,9 @@ agent can follow the existing stream contract.
 
 In particular, leave these files unchanged for normal agent replacement:
 
+Reference only. This is the framework boundary to avoid changing while plugging
+in a normal custom agent.
+
 * `framework/a2a_contract.py`;
 * `framework/a2a_executor.py`;
 * `framework/a2a_server.py`;
@@ -253,6 +288,8 @@ Change framework code only when the public A2A behavior changes, such as:
 
 Install the project in editable mode from the repository root:
 
+Run from: repository root.
+
 ```bash
 conda activate oci-langgraph-a2a-blueprint
 python -m pip install --no-deps -e .
@@ -260,17 +297,24 @@ python -m pip install --no-deps -e .
 
 Start the local A2A server:
 
+Run from: repository root, after editing `src/oci_langgraph_a2a_blueprint/agent/`.
+
 ```bash
 a2a-langgraph-server
 ```
 
 In another terminal, call your custom agent through the public A2A boundary:
 
+Run from: repository root, or from any shell where the editable package is
+installed in the active Conda environment.
+
 ```bash
 a2a-stream-client "hello custom agent"
 ```
 
 For a non-default server URL:
+
+Run this when the server is listening on a custom port or host.
 
 ```bash
 a2a-stream-client \
@@ -280,6 +324,9 @@ a2a-stream-client \
 
 The stream should show:
 
+Expected output shape. Exact messages come from the `AgentProgressEvent`
+objects emitted by your custom `stream()` method.
+
 ```text
 Task submitted
 Working status updates from your AgentProgressEvent objects
@@ -288,6 +335,8 @@ Task completed
 ```
 
 Run the project checks after replacing the agent:
+
+Run from: repository root.
 
 ```bash
 black --check .
