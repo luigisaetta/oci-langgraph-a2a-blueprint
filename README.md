@@ -21,10 +21,9 @@ The blueprint currently connects the key pieces:
 ## Features
 
 - Spec-driven development workflow with specifications under `specs/`.
-- Bare LangGraph agent with `step1`, `step2`, and `step3` executed in sequence.
+- Bare LangGraph agent with several steps (`step1`, `step2`, and `step3`) executed in sequence.
 - Shared typed agent state with per-step outputs and final output.
 - Each sample step implemented as a readable LangChain `Runnable`.
-- Configurable simulated step duration for local demos and tests.
 - Internal async streaming API for bare-agent progress events.
 - Direct Python CLI client for invoking the bare agent without A2A.
 - A2A `1.0` HTTP+JSON/REST server wrapper using the official A2A Python SDK.
