@@ -122,6 +122,8 @@ A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
 
 ## Documentation
 
+- [docs/README.md](docs/README.md): documentation index.
+- [docs/custom-agent.md](docs/custom-agent.md): guide for plugging in your own LangGraph agent.
 - [server/a2a/README.md](server/a2a/README.md): local A2A server usage and wrapper architecture.
 - [clients/a2a-stream/README.md](clients/a2a-stream/README.md): A2A streaming client usage.
 - [clients/direct-agent/README.md](clients/direct-agent/README.md): direct bare-agent client usage.

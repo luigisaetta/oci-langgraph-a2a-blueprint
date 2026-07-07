@@ -75,6 +75,10 @@ The local A2A server README must make it clear that normal agent replacement
 should happen in `src/oci_langgraph_a2a_blueprint/agent/`, while reusable A2A
 server changes belong under `src/oci_langgraph_a2a_blueprint/framework/`.
 
+The `docs/` folder must include a main documentation index and a dedicated
+custom agent guide that shows how to provide a custom state, custom graph,
+custom `stream()` implementation, custom Agent Card, and A2A client test path.
+
 ## Acceptance Criteria
 
 This specification is accepted when:
@@ -85,4 +89,6 @@ This specification is accepted when:
 * root package exports continue to provide the documented convenience API;
 * tests import from the new package locations where appropriate;
 * README files and relevant specs reference the new paths;
+* `docs/README.md` indexes the documentation files under `docs/`;
+* `docs/custom-agent.md` explains how to plug in another LangGraph agent;
 * formatting, linting, and tests pass.
