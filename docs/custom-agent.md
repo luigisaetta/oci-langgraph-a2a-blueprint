@@ -6,8 +6,7 @@ place.
 
 The stable boundary is:
 
-Reference only. This is the runtime call path; do not paste it into a source
-file.
+This is the runtime call path.
 
 ```text
 A2A client
@@ -24,7 +23,7 @@ For most custom agents, only files under
 
 Reusable A2A framework files live here:
 
-Reference only. These files normally stay unchanged when replacing the agent.
+These files normally stay unchanged when replacing the agent.
 
 ```text
 src/oci_langgraph_a2a_blueprint/framework/
@@ -32,7 +31,7 @@ src/oci_langgraph_a2a_blueprint/framework/
 
 Replaceable agent files live here:
 
-Reference only. Put your custom agent implementation under this package.
+Put your custom agent implementation under this package.
 
 ```text
 src/oci_langgraph_a2a_blueprint/agent/
