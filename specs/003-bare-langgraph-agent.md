@@ -106,7 +106,7 @@ The implementation must expose:
 
 * `BareLangGraphAgent.invoke(input_text: str) -> AgentState`
 * `BareLangGraphAgent.stream(input_text: str) -> AsyncIterator[AgentProgressEvent]`
-* `build_graph(step_sleep_seconds: float = 1.0) -> CompiledStateGraph`
+* `BareLangGraphAgent.build_graph(steps: Iterable[BaseStep]) -> CompiledStateGraph`
 
 The implementation may expose additional helpers if they improve readability and testing.
 

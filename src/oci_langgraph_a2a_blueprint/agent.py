@@ -57,35 +57,6 @@ def _merge_state(current_state: AgentState, partial_update: AgentState) -> Agent
     return merged
 
 
-def build_graph(
-    step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
-) -> CompiledStateGraph:
-    """Build and compile the default bare LangGraph workflow.
-
-    Args:
-        step_sleep_seconds: Simulated work duration for each step.
-
-    Returns:
-        Compiled LangGraph state graph.
-
-    Raises:
-        ValueError: If `step_sleep_seconds` is negative.
-    """
-    steps = create_default_steps(step_sleep_seconds=step_sleep_seconds)
-    # here we have a list of steps
-
-    builder = StateGraph(AgentState)
-
-    previous_node = START
-    for step in steps:
-        builder.add_node(step.name, step)
-        builder.add_edge(previous_node, step.name)
-        previous_node = step.name
-
-    builder.add_edge(previous_node, END)
-    return builder.compile()
-
-
 class BareLangGraphAgent:
     """Bare three-step LangGraph agent used by the blueprint.
 
@@ -98,7 +69,7 @@ class BareLangGraphAgent:
         step_sleep_seconds: float = DEFAULT_STEP_SLEEP_SECONDS,
     ) -> None:
         self.steps = create_default_steps(step_sleep_seconds=step_sleep_seconds)
-        self.graph = self._build_graph_from_steps(self.steps)
+        self.graph = self.build_graph(self.steps)
 
     def invoke(self, input_text: str) -> AgentState:
         """Run the full graph synchronously.
@@ -146,7 +117,7 @@ class BareLangGraphAgent:
         )
 
     @staticmethod
-    def _build_graph_from_steps(
+    def build_graph(
         steps: Iterable[BaseStep],
     ) -> CompiledStateGraph:
         """Build and compile a graph from explicit step definitions.
