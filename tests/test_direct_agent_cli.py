@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Unit tests for the direct bare-agent command-line client.
 Agent customization: Update only if the direct sample-agent demo changes.
@@ -17,11 +17,11 @@ from oci_langgraph_a2a_blueprint.clients.direct_agent_cli import (
 )
 
 
-def test_format_event_with_step_name() -> None:
+def test_format_event_with_source() -> None:
     """Verify formatting for a step progress event."""
     event = AgentProgressEvent(
         event_type="step_completed",
-        step_name="step1",
+        source="step1",
         message="step1 completed",
         state={"input_text": "hello", "progress": ["step1 completed"]},
     )
@@ -29,11 +29,11 @@ def test_format_event_with_step_name() -> None:
     assert format_event(event) == "step_completed: step1 - step1 completed"
 
 
-def test_format_event_without_step_name() -> None:
+def test_format_event_without_source() -> None:
     """Verify formatting for a final agent event."""
     event = AgentProgressEvent(
         event_type="agent_completed",
-        step_name=None,
+        source=None,
         message="agent completed",
         state={"input_text": "hello", "progress": []},
     )

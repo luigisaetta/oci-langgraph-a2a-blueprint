@@ -92,10 +92,13 @@ The streaming method must:
 * yield structured progress events as the graph produces updates;
 * yield one `step_completed` event for each completed step;
 * yield one final `agent_completed` event after all steps finish;
+* use the reusable `AgentProgressEvent` contract from the framework layer;
+* set each step completion event `source` to the LangGraph step name;
 * include the current state snapshot in every event;
 * preserve step order.
 
-The streaming contract must remain independent from A2A-specific classes. The A2A wrapper will map these internal progress events to A2A streaming events in a later specification.
+The streaming contract must remain independent from A2A-specific SDK classes.
+The A2A wrapper maps these framework progress events to A2A streaming events.
 
 ## Public API
 

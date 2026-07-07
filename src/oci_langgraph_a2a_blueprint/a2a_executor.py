@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Reusable A2A AgentExecutor adapter for streaming LangGraph agents.
 Agent customization: Do not modify unless the A2A event mapping changes.
@@ -66,17 +66,22 @@ class LangGraphAgentExecutor(AgentExecutor):
             final_output = ""
             agent = self.agent_factory()
             async for event in agent.stream(context.get_user_input()):
-                if event.event_type == "step_completed":
+                if event.event_type in {"step_completed", "data"}:
                     await updater.update_status(
                         a2a_types.TaskState.TASK_STATE_WORKING,
                         message=self._new_agent_message(updater, event.message),
                         metadata={
                             "langgraph_event_type": event.event_type,
-                            "langgraph_step_name": event.step_name,
+                            "langgraph_source": event.source,
                         },
                     )
                 elif event.event_type == "agent_completed":
                     final_output = event.state.get(self.final_output_key, "")
+                elif event.event_type == "agent_failed":
+                    await updater.failed(
+                        self._new_agent_message(updater, event.message)
+                    )
+                    return
 
             await updater.add_artifact(
                 parts=[a2a_types.Part(text=final_output)],

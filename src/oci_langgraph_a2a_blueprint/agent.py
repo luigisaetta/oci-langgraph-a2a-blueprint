@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Bare LangGraph agent implementation for the OCI A2A blueprint.
 Agent customization: Modify only when changing the sample bare agent itself.
@@ -13,7 +13,8 @@ from collections.abc import AsyncIterator, Iterable
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from oci_langgraph_a2a_blueprint.state import AgentProgressEvent, AgentState
+from oci_langgraph_a2a_blueprint.a2a_contract import AgentProgressEvent
+from oci_langgraph_a2a_blueprint.state import AgentState
 from oci_langgraph_a2a_blueprint.steps import BaseStep, create_default_steps
 
 DEFAULT_STEP_SLEEP_SECONDS = 1.0
@@ -132,14 +133,14 @@ class BareLangGraphAgent:
                 state = _merge_state(state, partial_update)
                 yield AgentProgressEvent(
                     event_type="step_completed",
-                    step_name=step_name,
+                    source=step_name,
                     message=f"{step_name} completed",
                     state=state,
                 )
 
         yield AgentProgressEvent(
             event_type="agent_completed",
-            step_name=None,
+            source=None,
             message="agent completed",
             state=state,
         )

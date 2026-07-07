@@ -35,7 +35,9 @@ src/oci_langgraph_a2a_blueprint/agent_adapter.py
 
 `a2a_contract.py` defines the minimal streaming contract expected by the A2A
 executor. A pluggable agent must provide an async `stream(input_text)` method
-that yields `AgentProgressEvent` objects.
+that yields `AgentProgressEvent` objects. Each event has a general `source`
+field for the emitting node, step, tool, or component, plus optional `data` for
+intermediate payloads.
 
 `agent.py` and `steps.py` implement what the sample LangGraph agent does.
 
@@ -111,13 +113,13 @@ internal event to A2A task events.
 ```python
 agent = self.agent_factory()
 async for event in agent.stream(context.get_user_input()):
-    if event.event_type == "step_completed":
+    if event.event_type in {"step_completed", "data"}:
         await updater.update_status(
             a2a_types.TaskState.TASK_STATE_WORKING,
             message=self._new_agent_message(updater, event.message),
             metadata={
                 "langgraph_event_type": event.event_type,
-                "langgraph_step_name": event.step_name,
+                "langgraph_source": event.source,
             },
         )
     elif event.event_type == "agent_completed":
@@ -163,13 +165,20 @@ class MyLangGraphAgent:
     async def stream(self, input_text: str):
         yield AgentProgressEvent(
             event_type="step_completed",
-            step_name="my_node",
+            source="my_node",
             message="my_node completed",
             state={"final_output": "partial or final value"},
         )
         yield AgentProgressEvent(
+            event_type="data",
+            source="my_node",
+            message="intermediate data available",
+            data={"value": "partial or structured data"},
+            state={"final_output": "partial or final value"},
+        )
+        yield AgentProgressEvent(
             event_type="agent_completed",
-            step_name=None,
+            source=None,
             message="agent completed",
             state={"final_output": "final response text"},
         )
@@ -212,7 +221,8 @@ Each streamed event should include enough information to map it to A2A:
 ```text
 event_type
 message
-step_name or node_name
+source
+data, when the event carries intermediate data
 state snapshot or output fragment
 ```
 

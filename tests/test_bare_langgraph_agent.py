@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Unit tests for the bare LangGraph agent implementation.
 Agent customization: Update when the sample bare agent behavior changes.
@@ -104,7 +104,7 @@ async def test_agent_streams_step_updates_in_order() -> None:
         "step_completed",
         "agent_completed",
     ]
-    assert [event.step_name for event in events] == [
+    assert [event.source for event in events] == [
         "step1",
         "step2",
         "step3",

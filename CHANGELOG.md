@@ -2,6 +2,7 @@
 
 ## 2026-07-06
 
+* Moved the reusable agent progress event contract into the A2A framework layer and generalized event source metadata.
 * Added the initial general architecture specification for the LangGraph agent blueprint and A2A server wrapper.
 * Revised the architecture specification to describe the target A2A architecture independently from delivery order.
 * Added the runtime dependencies specification and initial Conda environment definition.

@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Unit tests for the A2A HTTP/SSE server wrapper.
 Agent customization: Update when the A2A wrapper contract changes.
@@ -17,6 +17,7 @@ from starlette.testclient import TestClient
 
 from oci_langgraph_a2a_blueprint.a2a_contract import (
     A2A_PROTOCOL_VERSION,
+    AgentProgressEvent,
     REST_PROTOCOL_BINDING,
 )
 from oci_langgraph_a2a_blueprint.agent_adapter import (
@@ -27,7 +28,6 @@ from oci_langgraph_a2a_blueprint.agent_adapter import (
 )
 from oci_langgraph_a2a_blueprint.a2a_server import create_server
 from oci_langgraph_a2a_blueprint.clients.a2a_stream_client import build_stream_request
-from oci_langgraph_a2a_blueprint.state import AgentProgressEvent
 
 
 class CustomStreamingAgent:
@@ -44,7 +44,7 @@ class CustomStreamingAgent:
         """
         yield AgentProgressEvent(
             event_type="step_completed",
-            step_name="custom_step",
+            source="custom_step",
             message="custom step completed",
             state={
                 "input_text": input_text,
@@ -53,8 +53,19 @@ class CustomStreamingAgent:
             },
         )
         yield AgentProgressEvent(
+            event_type="data",
+            source="custom_step",
+            message="custom data emitted",
+            data={"chunk": "intermediate"},
+            state={
+                "input_text": input_text,
+                "progress": ["custom step completed", "custom data emitted"],
+                "final_output": f"custom processed: {input_text}",
+            },
+        )
+        yield AgentProgressEvent(
             event_type="agent_completed",
-            step_name=None,
+            source=None,
             message="custom agent completed",
             state={
                 "input_text": input_text,
@@ -178,6 +189,8 @@ def test_message_stream_accepts_custom_agent_factory() -> None:
 
     serialized_events = json.dumps(events)
     assert "custom step completed" in serialized_events
+    assert "custom data emitted" in serialized_events
+    assert "langgraph_source" in serialized_events
     assert "custom processed: hello" in serialized_events
     assert "TASK_STATE_COMPLETED" in serialized_events
 

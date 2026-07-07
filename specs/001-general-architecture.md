@@ -115,18 +115,25 @@ The default business logic must be intentionally simple because this repository 
 
 The bare LangGraph agent must support streaming so a caller can observe progress while `step1`, `step2`, and `step3` execute.
 
-The agent layer must expose an internal async streaming interface that yields structured progress events. The A2A wrapper maps those internal events to A2A streaming events.
+The agent layer must expose an internal async streaming interface that yields
+structured progress events defined by the reusable A2A framework contract. The
+A2A wrapper maps those internal events to A2A streaming events.
 
 Internal progress events should include:
 
 * task or run identifier;
-* step name;
-* event type, such as `step_started`, `step_completed`, `agent_completed`, or `agent_failed`;
+* source name, such as a LangGraph node, step, tool, or component;
+* event type, such as `step_completed`, `data`, `agent_completed`, or `agent_failed`;
 * human-readable message;
 * timestamp;
+* optional intermediate data emitted by a source;
 * optional state snapshot or output fragment where useful.
 
-The bare agent must keep this streaming contract independent from A2A-specific classes. This keeps the core agent testable without an HTTP server and makes the A2A integration a protocol adapter rather than part of the business logic.
+The event contract must live in the reusable framework layer, not in the sample
+agent state module. The bare agent must keep this streaming contract independent
+from A2A-specific SDK classes. This keeps the core agent testable without an
+HTTP server and makes the A2A integration a protocol adapter rather than part of
+the business logic.
 
 ## A2A Server Wrapper
 

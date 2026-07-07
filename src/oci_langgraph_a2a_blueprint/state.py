@@ -1,17 +1,16 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
-Description: State and event models used by the bare LangGraph agent.
-Agent customization: Modify only if the custom agent changes state or event shape.
+Description: State model used by the bare LangGraph agent.
+Agent customization: Modify only if the custom agent changes state shape.
 """
 
 from __future__ import annotations
 
 import operator
-from typing import Annotated, Literal
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
 from typing_extensions import TypedDict
 
 
@@ -33,24 +32,3 @@ class AgentState(TypedDict, total=False):
     state3: str
     progress: Annotated[list[str], operator.add]
     final_output: str
-
-
-ProgressEventType = Literal["step_completed", "agent_completed"]
-
-
-class AgentProgressEvent(BaseModel):
-    """Structured event emitted by the bare agent streaming API.
-
-    Attributes:
-        event_type: Type of progress event.
-        message: Human-readable progress message.
-        state: Current state snapshot.
-        step_name: Step that produced the event, if applicable.
-    """
-
-    model_config = ConfigDict(frozen=True)
-
-    event_type: ProgressEventType
-    message: str
-    state: AgentState
-    step_name: str | None = None
