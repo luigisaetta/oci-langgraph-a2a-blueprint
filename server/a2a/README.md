@@ -25,12 +25,12 @@ agent implementation, and a single adapter plug point:
 
 ```text
 Reusable A2A framework:
-src/oci_langgraph_a2a_blueprint/a2a_contract.py
-src/oci_langgraph_a2a_blueprint/a2a_executor.py
-src/oci_langgraph_a2a_blueprint/a2a_server.py
+src/oci_langgraph_a2a_blueprint/framework/a2a_contract.py
+src/oci_langgraph_a2a_blueprint/framework/a2a_executor.py
+src/oci_langgraph_a2a_blueprint/framework/a2a_server.py
 
 Sample agent plug point:
-src/oci_langgraph_a2a_blueprint/agent_adapter.py
+src/oci_langgraph_a2a_blueprint/agent/agent_adapter.py
 ```
 
 `a2a_contract.py` defines the minimal streaming contract expected by the A2A
@@ -39,7 +39,8 @@ that yields `AgentProgressEvent` objects. Each event has a general `source`
 field for the emitting node, step, tool, or component, plus optional `data` for
 intermediate payloads.
 
-`agent.py` and `steps.py` implement what the sample LangGraph agent does.
+`agent/agent.py` and `agent/steps.py` implement what the sample LangGraph agent
+does.
 
 `agent_adapter.py` is the file to copy or edit when replacing the agent. It must
 expose `create_agent_adapter()`, and it owns the agent factory plus Agent Card
@@ -58,9 +59,9 @@ For the sample agent only, `create_agent_factory()` reads
 That setting is not visible to `create_server()` or to the uvicorn bootstrap
 code.
 
-`create_server()` in `a2a_server.py` is the reusable A2A server wrapper. It
-wires the A2A SDK to Starlette. It receives an `agent_factory` and an
-`agent_card`, registers
+`create_server()` in `framework/a2a_server.py` is the reusable A2A server
+wrapper. It wires the A2A SDK to Starlette. It receives an `agent_factory` and
+an `agent_card`, registers
 `LangGraphAgentExecutor` as the protocol adapter, uses the SDK
 `DefaultRequestHandler`, and exposes only the Agent Card route plus the REST
 streaming route.
@@ -84,9 +85,9 @@ def create_server(
     return Starlette(routes=routes)
 ```
 
-`a2a_server.py` also contains the local entry point behind the
+`framework/a2a_server.py` also contains the local entry point behind the
 `a2a-langgraph-server` command. It reads local server settings, asks
-`agent_adapter.py` for the agent adapter through the standard
+`agent/agent_adapter.py` for the agent adapter through the standard
 `create_agent_adapter()` function, creates the Agent Card with the server
 public URL, and then calls the generic `create_server()`.
 
@@ -146,8 +147,8 @@ SDK requires task-mode streams to start with a `Task` before status or artifact
 updates are emitted.
 
 The reusable server wrapper depends only on an `agent_factory` and an
-`agent_card`. The command-line entry point lives in `a2a_server.py`; it starts
-uvicorn and asks `agent_adapter.py` to build the agent adapter.
+`agent_card`. The command-line entry point lives in `framework/a2a_server.py`;
+it starts uvicorn and asks `agent/agent_adapter.py` to build the agent adapter.
 
 ## Adapting This Server to Another LangGraph Agent
 
@@ -155,7 +156,7 @@ For another LangGraph agent, keep the A2A framework structure and replace only
 the agent adapter. In the usual case, the only file to copy or edit is:
 
 ```text
-src/oci_langgraph_a2a_blueprint/agent_adapter.py
+src/oci_langgraph_a2a_blueprint/agent/agent_adapter.py
 ```
 
 Your custom agent should provide this minimal stream method:
@@ -200,7 +201,7 @@ def create_agent_adapter() -> AgentAdapter:
     )
 ```
 
-Change `src/oci_langgraph_a2a_blueprint/a2a_executor.py` when:
+Change `src/oci_langgraph_a2a_blueprint/framework/a2a_executor.py` when:
 
 * the input extraction needs more than plain text;
 * internal stream event names are different;
@@ -226,8 +227,8 @@ data, when the event carries intermediate data
 state snapshot or output fragment
 ```
 
-Change `src/oci_langgraph_a2a_blueprint/a2a_server.py` only when the framework
-itself changes:
+Change `src/oci_langgraph_a2a_blueprint/framework/a2a_server.py` only when the
+framework itself changes:
 
 * more A2A routes must be exposed;
 * task storage should move from `InMemoryTaskStore` to a durable store;
@@ -293,8 +294,8 @@ The sample agent plug point supports this separate environment variable:
 AGENT_STEP_SLEEP_SECONDS     Simulated duration for each sample LangGraph step. Defaults to 1.0.
 ```
 
-The server variables are consumed by `main()` in `a2a_server.py`. The
-sample-agent variable is consumed by `agent_adapter.py`. None of them are
+The server variables are consumed by `main()` in `framework/a2a_server.py`. The
+sample-agent variable is consumed by `agent/agent_adapter.py`. None of them are
 consumed by the reusable `create_server()` wrapper.
 
 Example with a custom port:

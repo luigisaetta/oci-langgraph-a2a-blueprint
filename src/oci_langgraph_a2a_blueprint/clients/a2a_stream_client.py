@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Command-line client for A2A HTTP/SSE streaming execution.
 Agent customization: Do not modify unless the client protocol usage changes.
@@ -18,7 +18,7 @@ from uuid import uuid4
 import httpx
 from httpx_sse import SSEError, connect_sse
 
-from oci_langgraph_a2a_blueprint.a2a_contract import A2A_PROTOCOL_VERSION
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import A2A_PROTOCOL_VERSION
 
 DEFAULT_A2A_CLIENT_SERVER_URL = "http://localhost:8080"
 DEFAULT_TIMEOUT_SECONDS = 30.0

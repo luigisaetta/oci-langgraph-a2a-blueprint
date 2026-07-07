@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: LangChain Runnable step definitions for the bare LangGraph agent.
 Agent customization: Modify only when changing the sample step workflow.
@@ -16,7 +16,7 @@ from typing import Any
 
 from langchain_core.runnables import Runnable, RunnableConfig
 
-from oci_langgraph_a2a_blueprint.state import AgentState
+from oci_langgraph_a2a_blueprint.agent.state import AgentState
 
 LOGGER = logging.getLogger(__name__)
 

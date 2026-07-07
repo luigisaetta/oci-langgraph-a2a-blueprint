@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Adapter that plugs the LangGraph agent into the A2A server.
 Agent customization: Modify this file to plug in a different agent.
@@ -14,14 +14,14 @@ from dataclasses import dataclass
 
 from a2a import types as a2a_types
 
-from oci_langgraph_a2a_blueprint.a2a_contract import (
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import (
     A2A_PROTOCOL_VERSION,
     REST_PROTOCOL_BINDING,
     AgentAdapter,
     AgentFactory,
 )
-from oci_langgraph_a2a_blueprint.a2a_server_config import DEFAULT_SERVER_URL
-from oci_langgraph_a2a_blueprint.agent import (
+from oci_langgraph_a2a_blueprint.framework.a2a_server_config import DEFAULT_SERVER_URL
+from oci_langgraph_a2a_blueprint.agent.agent import (
     DEFAULT_STEP_SLEEP_SECONDS,
     BareLangGraphAgent,
 )

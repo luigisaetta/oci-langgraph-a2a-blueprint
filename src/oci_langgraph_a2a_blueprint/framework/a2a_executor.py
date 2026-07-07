@@ -13,7 +13,7 @@ from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.server.tasks import TaskUpdater
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import AgentFactory
 
 
 class LangGraphAgentExecutor(AgentExecutor):

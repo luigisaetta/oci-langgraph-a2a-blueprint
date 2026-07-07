@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: A2A HTTP/SSE server factory for the OCI LangGraph A2A blueprint.
 Agent customization: Do not modify for normal agent replacement.
@@ -18,10 +18,12 @@ from a2a.server.tasks import InMemoryTaskStore
 from starlette.applications import Starlette
 import uvicorn
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentFactory
-from oci_langgraph_a2a_blueprint.a2a_executor import LangGraphAgentExecutor
-from oci_langgraph_a2a_blueprint.a2a_server_config import load_a2a_server_settings
-from oci_langgraph_a2a_blueprint.agent_adapter import create_agent_adapter
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import AgentFactory
+from oci_langgraph_a2a_blueprint.framework.a2a_executor import LangGraphAgentExecutor
+from oci_langgraph_a2a_blueprint.framework.a2a_server_config import (
+    load_a2a_server_settings,
+)
+from oci_langgraph_a2a_blueprint.agent.agent_adapter import create_agent_adapter
 
 
 def create_server(

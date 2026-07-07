@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Runtime configuration helpers for the local A2A server.
 Agent customization: Do not add agent-specific settings here.

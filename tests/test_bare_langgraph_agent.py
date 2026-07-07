@@ -14,7 +14,12 @@ import pytest
 from langchain_core.runnables import Runnable
 
 from oci_langgraph_a2a_blueprint import BareLangGraphAgent
-from oci_langgraph_a2a_blueprint.steps import Step1, Step2, Step3, create_default_steps
+from oci_langgraph_a2a_blueprint.agent.steps import (
+    Step1,
+    Step2,
+    Step3,
+    create_default_steps,
+)
 
 
 def test_default_steps_are_langchain_runnables_and_support_invoke() -> None:

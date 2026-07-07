@@ -1,6 +1,6 @@
 """
 Author: L. Saetta
-Date last modified: 2026-07-06
+Date last modified: 2026-07-07
 License: MIT
 Description: Unit tests for Docker Compose deployment support files.
 """
@@ -55,6 +55,10 @@ def test_runtime_dependencies_are_declared_for_container_build() -> None:
     """Verify package metadata includes dependencies needed by the image."""
     pyproject = (REPOSITORY_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
+    assert (
+        'a2a-langgraph-server = "oci_langgraph_a2a_blueprint.framework.a2a_server:main"'
+        in pyproject
+    )
     for dependency in [
         '"a2a-sdk[http-server]"',
         '"langchain-core"',

@@ -15,18 +15,18 @@ import json
 from a2a import types as a2a_types
 from starlette.testclient import TestClient
 
-from oci_langgraph_a2a_blueprint.a2a_contract import (
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import (
     A2A_PROTOCOL_VERSION,
     AgentProgressEvent,
     REST_PROTOCOL_BINDING,
 )
-from oci_langgraph_a2a_blueprint.agent_adapter import (
+from oci_langgraph_a2a_blueprint.agent.agent_adapter import (
     create_agent_adapter,
     load_agent_settings,
     create_agent_card,
     create_agent_factory,
 )
-from oci_langgraph_a2a_blueprint.a2a_server import create_server
+from oci_langgraph_a2a_blueprint.framework.a2a_server import create_server
 from oci_langgraph_a2a_blueprint.clients.a2a_stream_client import build_stream_request
 
 

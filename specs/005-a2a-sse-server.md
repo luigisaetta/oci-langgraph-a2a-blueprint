@@ -155,7 +155,7 @@ This specification is accepted when:
 * the reusable server factory is named `create_server`;
 * the reusable server factory requires `agent_factory`;
 * the reusable server factory does not expose sample-agent sleep settings;
-* the local server entry point is implemented in `a2a_server.py`;
+* the local server entry point is implemented in `framework/a2a_server.py`;
 * the agent adapter module exposes `create_agent_adapter()` with no server
   URL parameter;
 * the Starlette app exposes only Agent Card discovery and `POST /message:stream`;

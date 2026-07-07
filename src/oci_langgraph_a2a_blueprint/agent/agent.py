@@ -13,9 +13,9 @@ from collections.abc import AsyncIterator, Iterable
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
-from oci_langgraph_a2a_blueprint.a2a_contract import AgentProgressEvent
-from oci_langgraph_a2a_blueprint.state import AgentState
-from oci_langgraph_a2a_blueprint.steps import BaseStep, create_default_steps
+from oci_langgraph_a2a_blueprint.framework.a2a_contract import AgentProgressEvent
+from oci_langgraph_a2a_blueprint.agent.state import AgentState
+from oci_langgraph_a2a_blueprint.agent.steps import BaseStep, create_default_steps
 
 DEFAULT_STEP_SLEEP_SECONDS = 1.0
 
