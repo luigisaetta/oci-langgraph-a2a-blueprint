@@ -41,6 +41,8 @@ The blueprint currently connects the key pieces:
 
 The repository includes a sample bare LangGraph agent and an A2A HTTP/SSE wrapper.
 
+![OCI LangGraph A2A Blueprint architecture](images/architecture-overview.svg)
+
 The bare agent executes three sequential LangChain `Runnable` steps, shares state across the graph, logs the start and completion of each step, and exposes both synchronous invocation and asynchronous streaming progress events.
 
 ```python
@@ -123,6 +125,7 @@ A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
 ## Documentation
 
 - [docs/README.md](docs/README.md): documentation index.
+- [images/architecture-overview.svg](images/architecture-overview.svg): architecture overview diagram.
 - [docs/custom-agent.md](docs/custom-agent.md): guide for plugging in your own LangGraph agent.
 - [server/a2a/README.md](server/a2a/README.md): local A2A server usage and wrapper architecture.
 - [clients/a2a-stream/README.md](clients/a2a-stream/README.md): A2A streaming client usage.

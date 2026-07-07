@@ -8,3 +8,8 @@ A2A blueprint.
 * [How to Plug Your Own LangGraph Agent](custom-agent.md): replace the sample
   LangGraph agent while keeping the reusable A2A framework unchanged.
 
+## Diagrams
+
+* [Architecture Overview](../images/architecture-overview.svg): end-to-end
+  component map for clients, deployment entry points, framework modules, and
+  the replaceable agent package.
