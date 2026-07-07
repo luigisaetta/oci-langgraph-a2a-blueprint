@@ -23,16 +23,30 @@ AgentEventType = Literal["step_completed", "data", "agent_completed", "agent_fai
 class AgentProgressEvent(BaseModel):
     """Structured event emitted by a streaming agent.
 
+    A streaming agent yields these events to report progress, intermediate
+    payloads, completion, or controlled failures. The A2A executor consumes this
+    framework-level contract and maps it to A2A task status and artifact events.
+
     Attributes:
-        event_type: Type of progress event emitted by the agent.
-        message: Human-readable progress message.
-        state: Current agent state snapshot, if available.
-        source: Agent component that produced the event, if applicable.
-        data: Optional intermediate data emitted by the source.
+        event_type: Event category. Use `step_completed` when a step, node, or
+            tool finishes; `data` when a source emits intermediate payloads;
+            `agent_completed` when the final state or output is available; and
+            `agent_failed` for controlled failures that should fail the A2A task.
+        message: Human-readable progress message suitable for status updates.
+        state: Optional snapshot of the agent state at the time of the event.
+            The executor reads the final output from this mapping when handling
+            `agent_completed`.
+        source: Optional name of the component that emitted the event, such as a
+            LangGraph node, workflow step, tool, retriever, or model.
+        data: Optional intermediate payload emitted by `source`. Use this for
+            chunks, tool output, retrieval snippets, or structured partial
+            results that are useful before final completion.
     """
 
     model_config = ConfigDict(frozen=True)
 
+    # Keep events immutable at the Pydantic field level once emitted. This makes
+    # each event behave like a point-in-time fact as it moves through adapters.
     event_type: AgentEventType
     message: str
     state: Mapping[str, Any] = Field(default_factory=dict)
