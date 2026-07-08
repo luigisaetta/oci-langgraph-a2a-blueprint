@@ -49,9 +49,22 @@ def create_server(
         agent_card=agent_card,
     )
 
-    routes = [_agent_card_route(agent_card)]
+    routes = [_health_route(), _agent_card_route(agent_card)]
     routes.extend(_streaming_only_routes(request_handler))
     return Starlette(routes=routes)
+
+
+def _health_route() -> Route:
+    """Create the runtime health route used by hosted deployments.
+
+    Returns:
+        Starlette route for lightweight liveness validation.
+    """
+
+    async def get_health(_request: Request) -> JSONResponse:
+        return JSONResponse({"status": "ok"})
+
+    return Route("/health", get_health, methods=["GET"])
 
 
 def _agent_card_route(agent_card: a2a_types.AgentCard) -> Route:

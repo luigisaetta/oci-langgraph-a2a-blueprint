@@ -6,6 +6,7 @@
 * Added an Agent Factory API/UI, Docker Compose deployment, and root start/stop scripts adapted from the RAG blueprint.
 * Added optional Hosted Application JWT protection through IDCS auth configuration and token validation helpers.
 * Updated the A2A Agent Card endpoint to derive its public URL from the incoming request for Hosted Application invoke paths.
+* Added an A2A runtime `/health` endpoint for Hosted Deployment validation.
 * Added tests for Agent Factory validation, command planning, IDCS artifacts, ready script redaction, and A2A Hosted Application URLs.
 
 ## 2026-07-06

@@ -114,13 +114,14 @@ def test_agent_card_declares_a2a_1_streaming() -> None:
 
 
 def test_app_exposes_only_agent_card_and_streaming_route() -> None:
-    """Verify the first server keeps the public A2A route surface small."""
+    """Verify the server keeps the public route surface small."""
     app = create_server(
         agent_factory=create_agent_factory(0),
         agent_card=create_agent_card(),
     )
 
     assert [route.path for route in app.routes] == [
+        "/health",
         "/.well-known/agent-card.json",
         "/message:stream",
     ]
@@ -161,6 +162,20 @@ def test_agent_card_endpoint_returns_json() -> None:
     assert body["name"] == "OCI LangGraph A2A Blueprint Agent"
     assert body["capabilities"]["streaming"] is True
     assert body["supportedInterfaces"][0]["protocolVersion"] == "1.0"
+
+
+def test_health_endpoint_returns_ok() -> None:
+    """Verify Hosted Deployment health checks have a runtime endpoint."""
+    app = create_server(
+        agent_factory=create_agent_factory(0),
+        agent_card=create_agent_card(server_url="http://testserver"),
+    )
+
+    with TestClient(app) as client:
+        response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 def test_agent_card_endpoint_uses_request_public_url() -> None:

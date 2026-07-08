@@ -132,6 +132,10 @@ from untrusted input.
 
 ## Endpoint Outputs
 
+The deployed A2A server must expose `GET /health` so Hosted Deployment
+validation can distinguish an unreachable runtime from an agent protocol
+failure.
+
 For a completed deployment, the factory must return:
 
 ```text
@@ -176,6 +180,7 @@ This specification is accepted when:
   approach;
 * tests cover validation, command generation, IDCS helpers, ready script output,
   and A2A-specific endpoint URL derivation;
+* tests cover the runtime A2A server `GET /health` endpoint;
 * documentation describes the Hosted Deployment Factory workflow;
 * relevant formatting, linting, unit testing, and coverage checks have been run
   or any inability to run them is reported.

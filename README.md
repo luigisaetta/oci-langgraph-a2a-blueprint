@@ -65,6 +65,7 @@ print(result["final_output"])
 
 The A2A server exposes:
 
+- `GET /health`
 - `GET /.well-known/agent-card.json`
 - `POST /message:stream`
 
