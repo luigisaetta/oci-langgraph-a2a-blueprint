@@ -9,6 +9,8 @@ A2A blueprint.
   limitations, and recommended wording for the blueprint's A2A 1.0 support.
 * [How to Plug Your Own LangGraph Agent](custom-agent.md): replace the sample
   LangGraph agent while keeping the reusable A2A framework unchanged.
+* [Agent Factory](../agent-factory/README.md): deploy the root A2A server
+  Docker image to OCI Enterprise AI Hosted Applications.
 
 ## Diagrams
 

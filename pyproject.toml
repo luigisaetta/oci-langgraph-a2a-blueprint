@@ -9,6 +9,7 @@ description = "Blueprint for deploying a LangGraph agent on OCI as an A2A-compat
 requires-python = ">=3.11"
 dependencies = [
     "a2a-sdk[http-server]",
+    "fastapi",
     "httpx",
     "httpx-sse",
     "langchain-core",

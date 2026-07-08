@@ -163,6 +163,35 @@ def test_agent_card_endpoint_returns_json() -> None:
     assert body["supportedInterfaces"][0]["protocolVersion"] == "1.0"
 
 
+def test_agent_card_endpoint_uses_request_public_url() -> None:
+    """Verify Agent Card URLs work behind Hosted Application invoke paths."""
+    app = create_server(
+        agent_factory=create_agent_factory(0),
+        agent_card=create_agent_card(server_url="http://placeholder"),
+    )
+
+    with TestClient(app) as client:
+        response = client.get(
+            "/.well-known/agent-card.json",
+            headers={
+                "X-Forwarded-Proto": "https",
+                "X-Forwarded-Host": (
+                    "inference.generativeai.us-chicago-1.oci.oraclecloud.com"
+                ),
+                "X-Forwarded-Prefix": (
+                    "/20251112/hostedApplications/ocid1.example/actions/invoke"
+                ),
+            },
+        )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["supportedInterfaces"][0]["url"] == (
+        "https://inference.generativeai.us-chicago-1.oci.oraclecloud.com/"
+        "20251112/hostedApplications/ocid1.example/actions/invoke"
+    )
+
+
 def test_message_stream_returns_sse_progress_and_completion() -> None:
     """Verify the A2A streaming endpoint emits progress and completion events."""
     app = create_server(

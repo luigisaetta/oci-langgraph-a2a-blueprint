@@ -16,6 +16,8 @@ The blueprint currently connects the key pieces:
 - A2A server runtime configuration that is centralized and easy to audit;
 - local Python clients for direct agent execution and A2A streaming execution;
 - a single-container Docker Compose deployment for local server validation;
+- an Agent Factory application for OCI Enterprise AI Hosted Application
+  deployments with optional JWT protection;
 - tests and specifications that make the behavior understandable, repeatable, and safe to evolve.
 
 ## Features
@@ -34,6 +36,11 @@ The blueprint currently connects the key pieces:
 - Injectable streaming agent factory for reusing the A2A server with another LangGraph agent.
 - Centralized A2A server runtime configuration for host, port, public URL, and log level.
 - Docker Compose deployment that runs the sample LangGraph agent and A2A server in one container.
+- Agent Factory deployment tool that builds the root A2A server Docker image,
+  pushes it to OCIR, and creates an OCI Enterprise AI Hosted Application
+  deployment.
+- Optional Hosted Application JWT protection through OCI IAM Identity Domains
+  `IDCS_AUTH_CONFIG`.
 - Python A2A streaming CLI client for testing the public protocol boundary.
 - Unit tests for the sample agent, direct client, A2A server, A2A server configuration, and A2A streaming client.
 
@@ -137,6 +144,41 @@ A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
 ./start_server.sh
 ```
 
+## OCI Hosted Deployment
+
+Use Agent Factory to deploy the root A2A server Docker image to OCI Enterprise
+AI Hosted Applications:
+
+```bash
+./start_factory.sh --build
+```
+
+Open the UI at:
+
+```text
+http://localhost:3100
+```
+
+The factory collects OCI, OCIR, Hosted Application, model, and A2A runtime
+settings. Dry runs generate the Docker and OCI CLI command plan without writing
+OCI resources. Live runs build the root `Dockerfile`, push the image to OCIR,
+create or reuse the Hosted Application, create a Hosted Deployment, and return
+health, Agent Card, and `/message:stream` URLs.
+
+JWT protection is optional. When enabled, the factory generates the Hosted
+Application `IDCS_AUTH_CONFIG` payload and can validate the confidential
+application token settings before deployment.
+
+Stop the factory with:
+
+```bash
+./stop_factory.sh
+```
+
+See [agent-factory/README.md](agent-factory/README.md) and
+[specs/011-oci-hosted-deployment-factory.md](specs/011-oci-hosted-deployment-factory.md)
+for details.
+
 ## Documentation
 
 - [docs/README.md](docs/README.md): documentation index.
@@ -146,6 +188,7 @@ A2A_SERVER_PUBLIC_URL=http://localhost:8123 \
 - [server/a2a/README.md](server/a2a/README.md): local A2A server usage and wrapper architecture.
 - [clients/a2a-stream/README.md](clients/a2a-stream/README.md): A2A streaming client usage.
 - [clients/direct-agent/README.md](clients/direct-agent/README.md): direct bare-agent client usage.
+- [agent-factory/README.md](agent-factory/README.md): OCI Hosted Deployment Factory usage.
 - [specs/](specs/): behaviour and architecture specifications.
 
 The project follows a strict spec-driven development workflow. Every meaningful feature starts with a specification in `specs/`, and implementation must stay aligned with the approved behavior. This keeps the repository useful as both working code and a reference architecture for building interoperable agent services on OCI.

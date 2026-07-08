@@ -16,6 +16,7 @@ dependencies:
       - pydantic
       - typing-extensions
       - "a2a-sdk[http-server]"
+      - fastapi
       - uvicorn
       - starlette
       - httpx
