@@ -38,7 +38,11 @@ from agent_factory_api.models import (
     validate_deployment_payload,
 )
 from agent_factory_api.ready_script import build_ready_to_run_script
-from agent_factory_api.resources import ResourceProvisioningError, validate_ocir_login
+from agent_factory_api.resources import (
+    ResourceProvisioningError,
+    resolve_object_storage_namespace,
+    validate_ocir_login,
+)
 
 RUNS: dict[str, DeploymentRun] = {}
 HOSTED_APPLICATION_API_VERSION = "20251112"
@@ -310,7 +314,8 @@ def _create_run(payload: dict[str, Any]) -> DeploymentRun:
 
     dry_run = bool(payload["dry_run"])
     now = utc_now()
-    plan = build_deployment_plan(payload, dry_run)
+    plan_payload = _payload_with_preflight_namespace(payload)
+    plan = build_deployment_plan(plan_payload, dry_run)
     commands = plan["commands"]
     steps = _build_steps(commands)
     status = "succeeded"
@@ -327,11 +332,11 @@ def _create_run(payload: dict[str, Any]) -> DeploymentRun:
         status=status,
         submitted_at=now,
         completed_at=now,
-        request=redact_payload(payload),
+        request=redact_payload(plan_payload),
         steps=steps,
         commands=commands,
         outputs=_build_run_outputs(
-            plan_payload=payload,
+            plan_payload=plan_payload,
             plan=plan,
             dry_run=dry_run,
         ),
@@ -342,7 +347,8 @@ def _create_live_run(payload: dict[str, Any]) -> DeploymentRun:
     """Create an in-memory live deployment run before execution starts."""
 
     now = utc_now()
-    plan = build_deployment_plan(payload, dry_run=False)
+    plan_payload = _payload_with_preflight_namespace(payload)
+    plan = build_deployment_plan(plan_payload, dry_run=False)
     steps = _build_steps(plan["commands"])
     _set_step_status(steps, "validate-input", "succeeded", timestamp=now)
 
@@ -352,13 +358,13 @@ def _create_live_run(payload: dict[str, Any]) -> DeploymentRun:
         status="running",
         submitted_at=now,
         completed_at=None,
-        request=redact_payload(payload),
+        request=redact_payload(plan_payload),
         steps=steps,
         commands=plan["commands"],
         outputs={
             "image_reference": plan["image_reference"],
-            "hosted_application_name": payload["hosted_application_name"],
-            "deployment_name": payload["deployment_name"],
+            "hosted_application_name": plan_payload["hosted_application_name"],
+            "deployment_name": plan_payload["deployment_name"],
             "endpoint_url": None,
             "resolved_identifiers": plan["resolved_identifiers"],
             "runtime_environment": redact_runtime_environment(
@@ -368,6 +374,30 @@ def _create_live_run(payload: dict[str, Any]) -> DeploymentRun:
             "note": "Live deployment started.",
         },
     )
+
+
+def _payload_with_preflight_namespace(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return payload enriched with OCI tenancy namespace when available.
+
+    Args:
+        payload: Normalized deployment payload.
+
+    Returns:
+        dict[str, Any]: Payload with `object_storage_namespace` populated when
+        the read-only OCI CLI lookup succeeds.
+    """
+
+    if payload.get("object_storage_namespace"):
+        return payload
+
+    enriched_payload = dict(payload)
+    try:
+        enriched_payload["object_storage_namespace"] = resolve_object_storage_namespace(
+            region=str(payload["region"])
+        )
+    except ResourceProvisioningError as exc:
+        enriched_payload["object_storage_namespace_error"] = str(exc)
+    return enriched_payload
 
 
 def _execute_live_run(deployment_run_id: str, payload: dict[str, Any]) -> None:

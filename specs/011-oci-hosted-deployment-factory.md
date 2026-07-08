@@ -117,15 +117,17 @@ validation layer.
 The backend must orchestrate deployment steps in this order:
 
 1. Validate deployment inputs.
-2. Validate OCIR login credentials.
-3. Build the A2A server image from the repository root `Dockerfile`.
-4. Create or reuse the OCIR repository.
-5. Push the image to OCIR.
-6. Generate Hosted Application runtime environment JSON.
-7. Create or reuse the Hosted Application.
-8. Create the Hosted Deployment with the pushed Docker image.
-9. Poll deployment readiness.
-10. Return non-secret deployment outputs and endpoint URLs.
+2. Resolve the OCI tenancy namespace with a read-only lookup for OCIR image
+   references when possible.
+3. Validate OCIR login credentials.
+4. Build the A2A server image from the repository root `Dockerfile`.
+5. Create or reuse the OCIR repository.
+6. Push the image to OCIR.
+7. Generate Hosted Application runtime environment JSON.
+8. Create or reuse the Hosted Application.
+9. Create the Hosted Deployment with the pushed Docker image.
+10. Poll deployment readiness.
+11. Return non-secret deployment outputs and endpoint URLs.
 
 Commands must be built as argument lists, not by concatenating shell strings
 from untrusted input.
@@ -175,6 +177,8 @@ This specification is accepted when:
   adapted from the RAG blueprint;
 * root `start_factory.sh` and `stop_factory.sh` exist and are executable;
 * the factory builds the root A2A server Docker image;
+* dry-run command plans use the resolved OCI tenancy namespace in OCIR image
+  references when the namespace lookup succeeds;
 * runtime environment generation uses the A2A server variables listed here;
 * optional JWT configuration follows the RAG blueprint `IDCS_AUTH_CONFIG`
   approach;

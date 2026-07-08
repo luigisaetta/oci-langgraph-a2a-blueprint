@@ -16,7 +16,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 AGENT_FACTORY_API = REPOSITORY_ROOT / "agent-factory" / "api"
 sys.path.insert(0, str(AGENT_FACTORY_API))
 
-from agent_factory_api.app import _build_hosted_application_urls  # noqa: E402
+from agent_factory_api.app import (  # noqa: E402
+    _build_hosted_application_urls,
+    _create_run,
+)
 from agent_factory_api.commands import (  # noqa: E402
     build_deployment_plan,
     build_hosted_application_artifacts,
@@ -66,6 +69,26 @@ def test_deployment_plan_uses_a2a_runtime_environment() -> None:
     assert plan["redacted_runtime_environment"]["AGENT_LLM_API_KEY"] == "********"
     assert any(command[:2] == ["docker", "build"] for command in plan["commands"])
     assert "OCI_VECTOR_STORE_ID" not in plan["runtime_environment"]
+
+
+def test_dry_run_resolves_namespace_for_displayed_docker_commands(monkeypatch) -> None:
+    """Verify dry-run command display uses the real OCI tenancy namespace."""
+    monkeypatch.setattr(
+        "agent_factory_api.app.resolve_object_storage_namespace",
+        lambda *, region: "mytenancy",
+    )
+
+    deployment_run = _create_run(_valid_payload())
+    docker_build_command = next(
+        command
+        for command in deployment_run.commands
+        if command[:2] == ["docker", "build"]
+    )
+
+    assert "ord.ocir.io/mytenancy/oci-langgraph-a2a-blueprint-agent:2026-07-08" in (
+        docker_build_command
+    )
+    assert "<tenancy-namespace>" not in " ".join(docker_build_command)
 
 
 def test_hosted_application_artifacts_support_optional_idcs_auth() -> None:

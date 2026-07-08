@@ -7,11 +7,13 @@ Description: External resource validation helpers for A2A Agent Factory.
 
 from __future__ import annotations
 
+import json
 import os
 import subprocess
 import tempfile
 
 OCIR_LOGIN_TIMEOUT_SECONDS = 60
+OCI_NAMESPACE_TIMEOUT_SECONDS = 30
 
 
 class ResourceProvisioningError(RuntimeError):
@@ -76,3 +78,64 @@ def validate_ocir_login(
         "ocir_registry": registry,
         "ocir_username": username,
     }
+
+
+def resolve_object_storage_namespace(*, region: str) -> str:
+    """Resolve the OCI tenancy Object Storage namespace with OCI CLI.
+
+    Args:
+        region: OCI region used for the read-only namespace lookup.
+
+    Returns:
+        str: Object Storage namespace used in OCIR image references.
+
+    Raises:
+        ResourceProvisioningError: If OCI CLI is unavailable or returns an
+            unexpected response.
+    """
+
+    if not region.strip():
+        raise ResourceProvisioningError("OCI region is required.")
+
+    try:
+        result = subprocess.run(
+            [
+                "oci",
+                "--region",
+                region,
+                "--output",
+                "json",
+                "os",
+                "ns",
+                "get",
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=OCI_NAMESPACE_TIMEOUT_SECONDS,
+        )
+    except FileNotFoundError as exc:
+        raise ResourceProvisioningError("OCI CLI is required.") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise ResourceProvisioningError("OCI namespace lookup timed out.") from exc
+
+    if result.returncode != 0:
+        detail = (
+            result.stderr or result.stdout or "OCI namespace lookup failed."
+        ).strip()
+        raise ResourceProvisioningError(detail)
+
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:
+        raise ResourceProvisioningError(
+            "OCI namespace lookup did not return valid JSON."
+        ) from exc
+
+    namespace = payload.get("data")
+    if not isinstance(namespace, str) or not namespace.strip():
+        raise ResourceProvisioningError(
+            "OCI namespace lookup did not return a namespace value."
+        )
+
+    return namespace.strip()
